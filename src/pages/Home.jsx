@@ -205,7 +205,10 @@ export default function Home() {
             </div>
           </div>
           <div className="footer-bottom">
-            © 2025 BazaarNepal. Built with ❤️ in Nepal.
+            © 2025 BazaarNepal. Created by{" "}
+            <a href="https://dikeshsapkota.com.np" target="_blank" rel="noreferrer">
+              Dikesh sapkota
+            </a>
           </div>
         </div>
       </footer>

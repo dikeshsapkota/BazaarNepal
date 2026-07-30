@@ -724,6 +724,8 @@ img { max-width: 100%; display: block; }
 .payment-badge { padding: 6px 14px; border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: 700; }
 .payment-badge.esewa { background: var(--esewa-green); color: white; }
 .footer-bottom { border-top: 1px solid var(--border); padding-top: 20px; text-align: center; font-size: 0.8rem; color: var(--text-muted); }
+.footer-bottom a { color: var(--text-primary); font-weight: 600; transition: var(--transition); }
+.footer-bottom a:hover { color: var(--primary); }
 
 /* ========================================
    PRODUCT DETAIL
