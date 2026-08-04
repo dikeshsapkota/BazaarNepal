@@ -43,69 +43,189 @@ export default function ProductDetail() {
   };
 
   return (
-    <div className="product-detail-page">
-      <div className="container">
-        <button className="back-btn" onClick={() => navigate(-1)}>← Back</button>
-        <div className="product-detail-grid">
-          <div className="product-detail-image-wrap">
-            <img src={product.image} alt={product.name} className="product-detail-img" />
-            {discountPct > 0 && <div className="detail-discount-badge">-{discountPct}% OFF</div>}
+  <div className="min-h-screen bg-gray-50 py-10">
+    <div className="max-w-7xl mx-auto px-4">
+
+      {/* Back Button */}
+      <button
+        onClick={() => navigate(-1)}
+        className="mb-6 inline-flex items-center gap-2 text-violet-600 font-medium hover:text-violet-700"
+      >
+        ← Back
+      </button>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 bg-white rounded-3xl shadow-lg p-8">
+
+        {/* Product Image */}
+        <div className="relative">
+          <img
+            src={product.image}
+            alt={product.name}
+            className="w-full h-[500px] object-cover rounded-2xl"
+          />
+
+          {discountPct > 0 && (
+            <span className="absolute top-4 left-4 bg-red-500 text-white px-4 py-2 rounded-full text-sm font-semibold">
+              -{discountPct}% OFF
+            </span>
+          )}
+        </div>
+
+        {/* Product Info */}
+        <div className="flex flex-col">
+
+          <span className="text-sm font-medium text-violet-600 uppercase">
+            {product.category}
+          </span>
+
+          <h1 className="text-4xl font-bold text-gray-900 mt-2">
+            {product.name}
+          </h1>
+
+          <div className="flex items-center gap-3 mt-4">
+            <span className="text-yellow-500 text-xl">
+              {"★".repeat(Math.round(product.rating))}
+              {"☆".repeat(5 - Math.round(product.rating))}
+            </span>
+
+            <span className="text-gray-500">
+              {product.rating} ({product.reviews} reviews)
+            </span>
           </div>
-          <div className="product-detail-info">
-            <div className="product-detail-category">{product.category}</div>
-            <h1 className="product-detail-name">{product.name}</h1>
-            <div className="product-detail-rating">
-              <span className="stars-lg">{"★".repeat(Math.round(product.rating))}{"☆".repeat(5 - Math.round(product.rating))}</span>
-              <span>{product.rating} ({product.reviews} reviews)</span>
-            </div>
-            <div className="product-detail-price">
-              <span className="detail-price">Rs. {product.price.toLocaleString()}</span>
-              {product.originalPrice && (
-                <>
-                  <span className="detail-original">Rs. {product.originalPrice.toLocaleString()}</span>
-                  <span className="detail-savings">You save Rs. {(product.originalPrice - product.price).toLocaleString()}</span>
-                </>
-              )}
-            </div>
-            <p className="product-detail-desc">{product.description}</p>
-            <div className="product-detail-tags">
-              {product.tags?.map((tag) => (
-                <span key={tag} className="tag">#{tag}</span>
+
+          {/* Price */}
+          <div className="mt-6 flex flex-wrap items-center gap-4">
+
+            <span className="text-4xl font-bold text-violet-600">
+              Rs. {product.price.toLocaleString()}
+            </span>
+
+            {product.originalPrice && (
+              <>
+                <span className="text-gray-400 line-through text-xl">
+                  Rs. {product.originalPrice.toLocaleString()}
+                </span>
+
+                <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
+                  Save Rs. {(product.originalPrice - product.price).toLocaleString()}
+                </span>
+              </>
+            )}
+
+          </div>
+
+          {/* Description */}
+          <p className="mt-6 text-gray-600 leading-7">
+            {product.description}
+          </p>
+
+          {/* Tags */}
+          {product.tags?.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-6">
+              {product.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="bg-violet-100 text-violet-700 px-3 py-1 rounded-full text-sm"
+                >
+                  #{tag}
+                </span>
               ))}
             </div>
-            <div className="stock-info">
-              {product.stock > 0 ? (
-                <span className="in-stock">✓ In Stock ({product.stock} available)</span>
-              ) : (
-                <span className="out-stock">✗ Out of Stock</span>
-              )}
-            </div>
-            {currentUser?.role !== "seller" && product.stock > 0 && (
-              <div className="purchase-controls">
-                <div className="qty-selector">
-                  <label>Quantity:</label>
-                  <div className="qty-control">
-                    <button className="qty-btn" onClick={() => setQty(Math.max(1, qty - 1))}>−</button>
-                    <span className="qty-value">{qty}</span>
-                    <button className="qty-btn" onClick={() => setQty(Math.min(product.stock, qty + 1))}>+</button>
-                  </div>
-                </div>
-                <div className="action-buttons">
-                  <button className={`add-to-cart-btn-lg ${added ? "added" : ""}`} onClick={handleAddToCart}>
-                    {added ? "✓ Added to Cart!" : "🛒 Add to Cart"}
-                  </button>
-                  <button className="buy-now-btn" onClick={handleBuyNow}>⚡ Buy Now</button>
-                </div>
-              </div>
-            )}
-            {!currentUser && (
-              <div className="login-prompt">
-                <p>Please <button onClick={() => navigate("/login")} className="inline-link">login</button> to purchase</p>
-              </div>
+          )}
+
+          {/* Stock */}
+          <div className="mt-6">
+            {product.stock > 0 ? (
+              <span className="inline-flex items-center rounded-full bg-green-100 text-green-700 px-4 py-2 text-sm font-medium">
+                ✓ In Stock ({product.stock} available)
+              </span>
+            ) : (
+              <span className="inline-flex items-center rounded-full bg-red-100 text-red-700 px-4 py-2 text-sm font-medium">
+                ✗ Out of Stock
+              </span>
             )}
           </div>
+
+          {/* Purchase */}
+          {currentUser?.role !== "seller" && product.stock > 0 && (
+            <div className="mt-8">
+
+              <div className="flex items-center gap-4 mb-6">
+
+                <span className="font-medium">
+                  Quantity
+                </span>
+
+                <div className="flex items-center border rounded-xl overflow-hidden">
+
+                  <button
+                    onClick={() => setQty(Math.max(1, qty - 1))}
+                    className="px-4 py-2 hover:bg-gray-100"
+                  >
+                    −
+                  </button>
+
+                  <span className="px-5 font-semibold">
+                    {qty}
+                  </span>
+
+                  <button
+                    onClick={() =>
+                      setQty(Math.min(product.stock, qty + 1))
+                    }
+                    className="px-4 py-2 hover:bg-gray-100"
+                  >
+                    +
+                  </button>
+
+                </div>
+
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4">
+
+                <button
+                  onClick={handleAddToCart}
+                  className={`flex-1 rounded-xl py-3 font-semibold transition ${
+                    added
+                      ? "bg-green-600 text-white"
+                      : "bg-violet-600 hover:bg-violet-700 text-white"
+                  }`}
+                >
+                  {added ? "✓ Added to Cart!" : "🛒 Add to Cart"}
+                </button>
+
+                <button
+                  onClick={handleBuyNow}
+                  className="flex-1 rounded-xl py-3 border-2 border-violet-600 text-violet-600 hover:bg-violet-50 font-semibold transition"
+                >
+                  ⚡ Buy Now
+                </button>
+
+              </div>
+
+            </div>
+          )}
+
+          {!currentUser && (
+            <div className="mt-8 rounded-xl bg-yellow-50 border border-yellow-200 p-4">
+              <p className="text-yellow-800">
+                Please{" "}
+                <button
+                  onClick={() => navigate("/login")}
+                  className="font-semibold text-violet-600 hover:underline"
+                >
+                  login
+                </button>{" "}
+                to purchase this product.
+              </p>
+            </div>
+          )}
+
         </div>
+
       </div>
     </div>
-  );
-}
+  </div>
+
+);}

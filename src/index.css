@@ -1,154 +1,30 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap");
 
-Load older messages
-🎉 BazaarNepal is live at http://localhost:5173!
+@import "tailwindcss";
 
-The build passed with zero errors (303 KB bundle). Here's a summary of everything that was built:
-
-What's included
-🛒 Customer Experience
-Hero landing page with floating product cards, search bar, and stats
-Product grid with category filter pills, sort options, discount badges
-Product detail page — quantity selector, buy now / add to cart
-Shopping cart with promo code input, order summary, live discount calculation
-Checkout with shipping form + eSewa RC test payment redirect
-Order success page with animated checkmark + transaction details
-Order history page with status badges
-🏪 Seller Dashboard
-Analytics — total revenue, orders, avg order value, monthly bar chart, top products
-Product manager — add/edit/delete with image preview modal
-Promo codes — create unique codes, toggle active/inactive, usage progress bars, auto-generate
-🔐 Auth
-Role-based login (Customer / Seller tabs)
-Signup with seller shop fields
-Demo credentials fill button
-Persistent sessions via localStorage
-Quick start
-bash
-
-
-cd /Users/dikeshsapkota/.gemini/antigravity/scratch/ecommerce-nepal
-npm run dev
-Demo promo codes: WELCOME15 (15% off) · TECH20 (20% off) · NEPAL500 (Rs. 500 off)
-
-I recommend setting /Users/dikeshsapkota/.gemini/antigravity/scratch/ecommerce-nepal as your active workspace in the IDE for easy file navigation and editing.
-
-Walkthrough
-8:50 AM, 7/30/2026
- continue integrate tailwind in the project
-7:03 PM
-
-
-7:03 PM
-https://github.com/dikeshsapkota/BazaarNepal
-7:05 PM
-
-
-7:05 PM
-do it in the local folder integrate tailwind i have been doing and fix routes and give me
-7:06 PM
-
-
-Let me find where the project currently lives on disk.
-
-The project folder is gone. Let me rebuild it fresh with Tailwind CSS integrated from the start — this time at the correct location.
-
-The previous ecommerce-nepal folder is no longer on disk. Which Tailwind version should I use for the fresh rebuild?
-
-Tailwind CSS v3 (stable, widely used)
-Tailwind v3 it is. Let me scaffold the project and wire everything up in one pass.
-
-While scaffold runs, let me prepare all the source files so I can write them immediately after install. Let me check the scaffold task:
-
-Scaffold is still running. Let me wait a bit more:
-
-The npx commands seem to be hanging. Let me try a different approach and create the project structure manually:
-
-The first scaffold succeeded. Now let me install all dependencies including Tailwind v3:
-
-While dependencies install, let me write all the config files and source code in parallel:
-
-tailwind.config.js
-postcss.config.js
-Now write the CSS entry point and create all source directories:
-
-index.css
-Now write all source files simultaneously:
-
-seedData.js
-esewa.js
-AuthContext.jsx
-CartContext.jsx
-StoreContext.jsx
-Now all components and pages — fully styled with Tailwind:
-
-Navbar.jsx
-ProductCard.jsx
-CartItem.jsx
-ProtectedRoute.jsx
-Login.jsx
-Signup.jsx
-Home.jsx
-ProductDetail.jsx
-Cart.jsx
-7:06 PM
-Model quota reached
-Your plan's baseline quota will refresh on 8/11/2026, 7:05:11 PM. Antigravity does not support higher rate limits on this Google plan. Consider paid Google AI plans via a personal account or logging in with a Google Cloud project from a business account. Learn more.
-
-1 task running
-
-npm install react-router-dom tailwindcss@3 autoprefixer postcss 2>&1
-
-
-
-
-
-
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-@layer base {
-  * {
-    box-sizing: border-box;
-  }
-  html {
-    scroll-behavior: smooth;
-  }
-  body {
-    font-family: 'Outfit', system-ui, sans-serif;
-    background-color: #0a0a0f;
-    color: #f8fafc;
-    -webkit-font-smoothing: antialiased;
-  }
-  ::-webkit-scrollbar {
-    width: 5px;
-  }
-  ::-webkit-scrollbar-track {
-    background: #111118;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: #7c3aed;
-    border-radius: 9999px;
-  }
-  a {
-    color: inherit;
-    text-decoration: none;
-  }
-  button {
-    cursor: pointer;
-    font-family: 'Outfit', system-ui, sans-serif;
-  }
-  input, select, textarea {
-    font-family: 'Outfit', system-ui, sans-serif;
-  }
+* {
+  box-sizing: border-box;
 }
-@layer components {
-  /* Gradient text */
-  .gradient-text {
-    @apply bg-gradient-to-r from-brand-purple to-brand-pink bg-clip-text text-transparent;
-  }
-  /* Cards */
-  .glass-card {
-    @apply bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg;
-  }
-}   
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Outfit", sans-serif;
+  background: #f9fafb;
+  color: #111827;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
