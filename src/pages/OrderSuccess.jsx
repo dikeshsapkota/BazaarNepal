@@ -5,13 +5,42 @@ export default function OrderSuccess() {
   const [order, setOrder] = useState(null);
 
   useEffect(() => {
+    // Read the data returned by eSewa
+    const params = new URLSearchParams(window.location.search);
+    const encodedData = params.get("data");
+
+    let payment = null;
+
+    if (encodedData) {
+      payment = JSON.parse(atob(encodedData));
+      console.log(payment); // Check the payment data in the console
+    }
+
     const pending = localStorage.getItem("ecom_pending_order");
+
     if (pending) {
-      setOrder(JSON.parse(pending));
-      localStorage.removeItem("ecom_pending_order");
+      const order = JSON.parse(pending);
+
+      if (payment) {
+        order.status = payment.status;
+        order.transactionCode = payment.transaction_code;
+        order.transactionUuid = payment.transaction_uuid;
+        order.total = payment.total_amount;
+      }
+
+      setOrder(order);
+      localStorage.removeItem("cart");
+      localStorage.setItem("ecom_pending_order", JSON.stringify(order));
     }
   }, []);
-
+  if (!order) {
+    return (
+      <div className="text-center py-20">
+        <h2>No order found.</h2>
+        <p>Please complete a payment first.</p>
+      </div>
+    );
+  }
   return (
     <div className="success-page">
       <div className="success-card">
@@ -28,15 +57,26 @@ export default function OrderSuccess() {
           <div className="order-details-box">
             <div className="order-detail-row">
               <span>Order ID</span>
-              <span className="order-detail-value">{order.id}</span>
+              <span className="order-detail-value">
+                {order.transactionUuid || order.transactionId}
+              </span>
             </div>
             <div className="order-detail-row">
               <span>Transaction ID</span>
-              <span className="order-detail-value mono">{order.transactionId}</span>
+              <span className="order-detail-value mono">
+                {order.transactionId}
+              </span>
             </div>
             <div className="order-detail-row">
               <span>Amount Paid</span>
               <span className="order-detail-value">Rs. {order.total?.toLocaleString()}</span>
+            </div>
+            <div className="order-detail-row">
+              <span>Payment Date</span>
+
+              <span className="order-detail-value">
+                {new Date(order.createdAt).toLocaleString()}
+              </span>
             </div>
             <div className="order-detail-row">
               <span>Payment Method</span>
@@ -44,7 +84,16 @@ export default function OrderSuccess() {
             </div>
             <div className="order-detail-row">
               <span>Status</span>
-              <span className="status-badge processing">Processing</span>
+              <span
+                className={`status-badge ${order?.status === "COMPLETE"
+                  ? "completed"
+                  : order?.status === "FAILED"
+                    ? "failed"
+                    : "processing"
+                  }`}
+              >
+                {order?.status || "Processing"}
+              </span>
             </div>
           </div>
         )}

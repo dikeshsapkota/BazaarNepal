@@ -75,7 +75,16 @@ export async function initiateEsewaPayment({ amount, taxAmount = 0, serviceCharg
     input.value = value;
     form.appendChild(input);
   });
-
+// Save order locally
+localStorage.setItem(
+  "ecom_pending_order",
+  JSON.stringify({
+    transactionId,
+    amount: totalAmount,
+    status: "Pending",
+    createdAt: new Date().toISOString(),
+  })
+);
   document.body.appendChild(form);
   form.submit();
   document.body.removeChild(form);
