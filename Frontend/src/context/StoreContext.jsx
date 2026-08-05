@@ -1,6 +1,16 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { SEED_PRODUCTS, SEED_PROMO_CODES, SEED_ORDERS } from "../data/seedData";
 
+import {
+  getProducts,
+  getSellerProducts,
+  createProduct,
+  updateProduct as updateProductApi,
+  deleteProduct as deleteProductApi,
+} from "../api/productApi";
+import {
+  SEED_PROMO_CODES,
+  SEED_ORDERS,
+} from "../data/seedData";
 const StoreContext = createContext(null);
 
 function initData(key, seed) {
@@ -18,33 +28,79 @@ export function StoreProvider({ children }) {
   const [orders, setOrders] = useState([]);
 
   useEffect(() => {
-    setProducts(initData("ecom_products", SEED_PRODUCTS));
+    const loadProducts = async () => {
+      try {
+        const { data } = await getProducts(); // or API.get("/products")
+        setProducts(data.products);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    loadProducts();
+
     setPromoCodes(initData("ecom_promos", SEED_PROMO_CODES));
     setOrders(initData("ecom_orders", SEED_ORDERS));
   }, []);
 
   // --- Products ---
-  const addProduct = (product) => {
-    const newProduct = { ...product, id: "p_" + Date.now(), rating: 0, reviews: 0 };
-    const updated = [...products, newProduct];
-    setProducts(updated);
-    localStorage.setItem("ecom_products", JSON.stringify(updated));
-    return newProduct;
-  };
+const addProduct = async (product) => {
+  try {
+   const { data } = await createProduct(product);
 
-  const updateProduct = (productId, updates) => {
-    const updated = products.map((p) => (p.id === productId ? { ...p, ...updates } : p));
-    setProducts(updated);
-    localStorage.setItem("ecom_products", JSON.stringify(updated));
-  };
+    setProducts((prev) => [...prev, data.product]);
 
-  const deleteProduct = (productId) => {
-    const updated = products.filter((p) => p.id !== productId);
-    setProducts(updated);
-    localStorage.setItem("ecom_products", JSON.stringify(updated));
-  };
+    return data.product;
 
-  const getProductsBySeller = (sellerId) => products.filter((p) => p.sellerId === sellerId);
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+const updateProduct = async (productId, updates) => {
+  try {
+  const { data } = await updateProductApi(
+  productId,
+  updates
+);
+
+    setProducts((prev) =>
+      prev.map((p) =>
+        p._id === productId
+          ? data.product
+          : p
+      )
+    );
+
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+const deleteProduct = async (productId) => {
+  try {
+   await deleteProductApi(productId);
+
+    setProducts((prev) =>
+      prev.filter((p) => p._id !== productId)
+    );
+
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+const getProductsBySeller = (sellerId) =>
+  products.filter((p) => {
+    if (typeof p.seller === "object") {
+      return p.seller._id === sellerId;
+    }
+
+    return p.seller === sellerId;
+  });
 
   // --- Promo Codes ---
   const addPromoCode = (promo) => {
@@ -101,7 +157,7 @@ export function StoreProvider({ children }) {
 
     // Reduce stock
     orderData.items.forEach((item) => {
-      const product = products.find((p) => p.id === item.productId);
+      const product = products.find((p) => p._id === item.productId);
       if (product) {
         updateProduct(item.productId, { stock: Math.max(0, product.stock - item.quantity) });
       }

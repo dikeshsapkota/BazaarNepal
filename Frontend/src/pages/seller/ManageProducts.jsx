@@ -47,7 +47,7 @@ export default function ManageProducts() {
     setShowForm(true);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const productData = {
       ...form,
@@ -57,11 +57,24 @@ export default function ManageProducts() {
       sellerId: currentUser.id,
       tags: form.tags ? form.tags.split(",").map((t) => t.trim()) : [],
     };
-    if (editingId) {
-      updateProduct(editingId, productData);
-    } else {
-      addProduct(productData);
-    }
+    try {
+  if (editingId) {
+    await updateProduct(editingId, productData);
+  } else {
+    await addProduct(productData);
+  }
+
+  setSaved(true);
+
+  setTimeout(() => {
+    setSaved(false);
+    setShowForm(false);
+    setEditingId(null);
+  }, 1200);
+
+} catch (err) {
+  alert(err.response?.data?.message || "Failed to save product");
+}
     setSaved(true);
     setTimeout(() => { setSaved(false); setShowForm(false); setEditingId(null); }, 1200);
   };
