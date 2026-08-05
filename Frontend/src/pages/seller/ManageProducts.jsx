@@ -86,12 +86,12 @@ export default function ManageProducts() {
         {/* Product Form Modal */}
 {showForm && (
   <div
-    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+    className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4"
     onClick={(e) => {
       if (e.target === e.currentTarget) setShowForm(false);
     }}
   >
-    <div className="w-full max-w-3xl rounded-3xl bg-white shadow-2xl overflow-hidden">
+    <div className="w-full max-w-3xl max-h-[90vh] bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between border-b px-6 py-5">
         <h3 className="text-2xl font-bold text-gray-800">
@@ -107,8 +107,10 @@ export default function ManageProducts() {
       </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="p-6 space-y-6">
-
+<form
+  onSubmit={handleSubmit}
+  className="flex-1 overflow-y-auto p-6 space-y-6"
+>
         {/* Name + Category */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
@@ -276,7 +278,7 @@ export default function ManageProducts() {
         </div>
 
         {/* Buttons */}
-        <div className="flex justify-end gap-3 border-t pt-6">
+        <div className="flex flex-col sm:flex-row justify-end gap-3">
           <button
             type="button"
             onClick={() => setShowForm(false)}

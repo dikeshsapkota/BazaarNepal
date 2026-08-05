@@ -143,15 +143,17 @@ export default function PromoCodes() {
       </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="p-6 space-y-6">
-
+     <form
+  onSubmit={handleSubmit}
+  className="p-4 md:p-6 space-y-6 overflow-y-auto max-h-[80vh] sm:max-h-[85vh]"
+>
         {/* Promo Code */}
         <div>
           <label className="block mb-2 font-medium text-gray-700">
             Promo Code *
           </label>
 
-          <div className="flex gap-3">
+         <div className="flex flex-col sm:flex-row gap-3">
             <input
               type="text"
               value={form.code}
