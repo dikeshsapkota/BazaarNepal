@@ -18,36 +18,40 @@ export default function Signup() {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    if (form.password !== form.confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
-    if (form.password.length < 6) {
-      setError("Password must be at least 6 characters.");
-      return;
-    }
-    setLoading(true);
-    await new Promise((r) => setTimeout(r, 700));
-    const userData = {
-      name: form.name,
-      email: form.email,
-      password: form.password,
-      role,
-      ...(role === "seller" && {
-        shopName: form.shopName,
-        description: form.description,
-      }),
-    };
-    const result = signup(userData);
-    if (result.success) {
-      navigate(role === "seller" ? "/seller/dashboard" : "/");
-    } else {
-      setError(result.error);
-    }
-    setLoading(false);
+  e.preventDefault();
+  setError("");
+
+  if (form.password !== form.confirmPassword) {
+    setError("Passwords do not match.");
+    return;
+  }
+
+  if (form.password.length < 6) {
+    setError("Password must be at least 6 characters.");
+    return;
+  }
+
+  setLoading(true);
+
+  const userData = {
+    name: form.name,
+    email: form.email,
+    password: form.password,
+    role,
+    shopName: role === "seller" ? form.shopName : "",
+    phone: "",
   };
+
+  const result = await signup(userData);
+
+  if (result.success) {
+    navigate(role === "seller" ? "/seller/dashboard" : "/");
+  } else {
+    setError(result.error);
+  }
+
+  setLoading(false);
+};
 
   return (<div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-100 flex items-center justify-center px-4 py-10">
 
