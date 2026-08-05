@@ -3,17 +3,39 @@ const cors = require("cors");
 
 const app = express();
 
-app.use(cors({
-  origin: process.env.CLIENT_URL,
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 
+// Routes
+const authRoutes = require("./routes/authRoutes");
+const productRoutes = require("./routes/productRoutes");
+
+// Middleware
+const { protect } = require("./middleware/authMiddleware");
+
+// API Routes
+app.use("/api/auth", authRoutes);
+app.use("/api/products", productRoutes);
+
+// Home Route
 app.get("/", (req, res) => {
   res.json({
     success: true,
     message: "BazaarNepal Backend Running 🚀",
+  });
+});
+
+// Protected Test Route
+app.get("/api/profile", protect, (req, res) => {
+  res.json({
+    success: true,
+    user: req.user,
   });
 });
 

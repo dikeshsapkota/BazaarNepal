@@ -1,80 +1,73 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { SEED_SELLERS, SEED_CUSTOMERS } from "../data/seedData";
+import { loginUser, registerUser } from "../api/authApi";
 
 const AuthContext = createContext(null);
 
-function initializeUsers() {
-  const stored = localStorage.getItem("ecom_users");
-  if (!stored) {
-    const initialUsers = [...SEED_SELLERS, ...SEED_CUSTOMERS];
-    localStorage.setItem("ecom_users", JSON.stringify(initialUsers));
-    return initialUsers;
-  }
-  return JSON.parse(stored);
-}
+
 
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
-  const [users, setUsers] = useState([]);
+ 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const allUsers = initializeUsers();
-    setUsers(allUsers);
-    const savedUser = localStorage.getItem("ecom_current_user");
-    if (savedUser) {
-      setCurrentUser(JSON.parse(savedUser));
-    }
+    const savedUser = localStorage.getItem("user");
+const token = localStorage.getItem("token");
+
+if (savedUser && token) {
+  setCurrentUser(JSON.parse(savedUser));
+}
     setLoading(false);
   }, []);
 
-  const login = (email, password, role) => {
-    const allUsers = JSON.parse(localStorage.getItem("ecom_users") || "[]");
-    const user = allUsers.find(
-      (u) => u.email === email && u.password === btoa(password) && u.role === role
-    );
-    if (user) {
-      const safeUser = { ...user };
-      delete safeUser.password;
-      setCurrentUser(safeUser);
-      localStorage.setItem("ecom_current_user", JSON.stringify(safeUser));
-      return { success: true, user: safeUser };
-    }
-    return { success: false, error: "Invalid email, password, or role." };
-  };
+ const login = async (email, password) => {
+  try {
+    const { data } = await loginUser({
+      email,
+      password,
+    });
 
-  const signup = (userData) => {
-    const allUsers = JSON.parse(localStorage.getItem("ecom_users") || "[]");
-    const exists = allUsers.find((u) => u.email === userData.email);
-    if (exists) {
-      return { success: false, error: "Email already registered." };
-    }
-    const newUser = {
-      ...userData,
-      id: userData.role + "_" + Date.now(),
-      password: btoa(userData.password),
-      avatar: userData.name
-        .split(" ")
-        .map((w) => w[0])
-        .join("")
-        .toUpperCase()
-        .slice(0, 2),
-      joinedDate: new Date().toISOString().split("T")[0],
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data.user));
+
+    setCurrentUser(data.user);
+
+    return {
+      success: true,
+      user: data.user,
     };
-    const updated = [...allUsers, newUser];
-    localStorage.setItem("ecom_users", JSON.stringify(updated));
-    setUsers(updated);
+  } catch (err) {
+    return {
+      success: false,
+      error:
+        err.response?.data?.message || "Login failed",
+    };
+  }
+};
 
-    const safeUser = { ...newUser };
-    delete safeUser.password;
-    setCurrentUser(safeUser);
-    localStorage.setItem("ecom_current_user", JSON.stringify(safeUser));
-    return { success: true, user: safeUser };
-  };
+const signup = async (userData) => {
+  try {
+    await registerUser(userData);
+
+    return await login(
+      userData.email,
+      userData.password
+    );
+
+  } catch (err) {
+    return {
+      success: false,
+      error:
+        err.response?.data?.message ||
+        "Registration failed",
+    };
+  }
+};
 
   const logout = () => {
     setCurrentUser(null);
-    localStorage.removeItem("ecom_current_user");
+    localStorage.removeItem("user");
+localStorage.removeItem("token");
   };
 
   const updateUser = (updatedData) => {
