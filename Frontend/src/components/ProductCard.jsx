@@ -34,7 +34,7 @@ export default function ProductCard({ product }) {
 
   return (
     <div className="group overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-      <Link to={`/product/${product.id}`}>
+      <Link to={`/product/${product._id}`}>
         <div className="relative aspect-square overflow-hidden bg-gray-100">
           <img
             src={product.image}
@@ -70,7 +70,7 @@ export default function ProductCard({ product }) {
           {product.category}
         </p>
 
-        <Link to={`/product/${product.id}`}>
+        <Link to={`/product/${product._id}`}>
           <h3 className="line-clamp-2 text-lg font-semibold text-gray-900 transition group-hover:text-green-600">
             {product.name}
           </h3>

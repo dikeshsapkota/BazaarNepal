@@ -13,7 +13,7 @@ export default function ProductDetail() {
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
 
-  const product = products.find((p) => p.id === id);
+  const product = products.find((p) => p._id === id);
 
   if (!product) {
     return (
@@ -84,12 +84,12 @@ export default function ProductDetail() {
 
           <div className="flex items-center gap-3 mt-4">
             <span className="text-yellow-500 text-xl">
-              {"★".repeat(Math.round(product.rating))}
-              {"☆".repeat(5 - Math.round(product.rating))}
+            {"★".repeat(Math.round(product.rating ?? 0))}
+{"☆".repeat(5 - Math.round(product.rating ?? 0))}
             </span>
 
             <span className="text-gray-500">
-              {product.rating} ({product.reviews} reviews)
+             {product.rating ?? 0} ({product.reviews ?? 0} reviews)
             </span>
           </div>
 

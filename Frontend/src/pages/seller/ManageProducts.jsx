@@ -17,8 +17,9 @@ const EMPTY_FORM = {
 
 export default function ManageProducts() {
   const { currentUser } = useAuth();
+  console.log(currentUser);
   const { getProductsBySeller, addProduct, updateProduct, deleteProduct } = useStore();
-  const products = getProductsBySeller(currentUser?.id);
+  const products = getProductsBySeller(currentUser._id);
 
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -43,7 +44,7 @@ export default function ManageProducts() {
       description: product.description,
       tags: product.tags?.join(", ") || "",
     });
-    setEditingId(product.id);
+    setEditingId(product._id);
     setShowForm(true);
   };
 
@@ -54,7 +55,7 @@ export default function ManageProducts() {
       price: Number(form.price),
       originalPrice: form.originalPrice ? Number(form.originalPrice) : null,
       stock: Number(form.stock),
-      sellerId: currentUser.id,
+    
       tags: form.tags ? form.tags.split(",").map((t) => t.trim()) : [],
     };
     try {
@@ -75,15 +76,16 @@ export default function ManageProducts() {
 } catch (err) {
   alert(err.response?.data?.message || "Failed to save product");
 }
-    setSaved(true);
-    setTimeout(() => { setSaved(false); setShowForm(false); setEditingId(null); }, 1200);
+    
   };
-
-  const handleDelete = (id) => {
-    deleteProduct(id);
+const handleDelete = async (id) => {
+  try {
+    await deleteProduct(id);
     setDeleteConfirm(null);
-  };
-
+  } catch (err) {
+    alert(err.response?.data?.message || "Failed to delete product");
+  }
+};
   return (
     <div className="min-h-screen bg-gray-50 py-10">
       <div className="max-w-7xl mx-auto px-4">
@@ -344,7 +346,7 @@ export default function ManageProducts() {
   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
     {products.map((product) => (
       <div
-        key={product.id}
+        key={product._id}
         className="bg-white rounded-2xl shadow hover:shadow-xl transition overflow-hidden"
       >
         {/* Image */}
@@ -365,7 +367,7 @@ export default function ManageProducts() {
             </button>
 
             <button
-              onClick={() => setDeleteConfirm(product.id)}
+              onClick={() => setDeleteConfirm(product._id)}
               className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
             >
               🗑 Delete

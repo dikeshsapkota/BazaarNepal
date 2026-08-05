@@ -338,7 +338,7 @@ export default function Home() {
 
         {filtered.map((product) => (
           <ProductCard
-            key={product.id}
+            key={product._id}
             product={product}
           />
         ))}

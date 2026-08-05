@@ -29,6 +29,12 @@ const productSchema = new mongoose.Schema(
       required: true,
     },
 
+    
+    originalPrice: {
+      type: Number,
+      default: 0,
+    },
+
     stock: {
       type: Number,
       default: 0,
@@ -37,6 +43,24 @@ const productSchema = new mongoose.Schema(
     image: {
       type: String,
       default: "",
+    },
+
+    // NEW
+    tags: {
+      type: [String],
+      default: [],
+    },
+
+    // NEW
+    rating: {
+      type: Number,
+      default: 0,
+    },
+
+    // NEW
+    reviews: {
+      type: Number,
+      default: 0,
     },
 
     featured: {
