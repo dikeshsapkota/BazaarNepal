@@ -15,17 +15,16 @@ export default function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] =useState(false);
 
-  const demoAccounts = {
-    customer: {
-      email: "customer@gmail.com",
-      password: "customer123",
-    },
-    seller: {
-      email: "seller@techmart.com",
-      password: "techmart123",
-    },
-  };
-
+ const demoAccounts = {
+  customer: {
+    email: "dikesh@test.com",
+    password: "123456",
+  },
+  seller: {
+    email: "seller@example.com",
+    password: "123456",
+  },
+};
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -34,13 +33,25 @@ export default function Login() {
 
     await new Promise((r) => setTimeout(r, 600));
 
-    const result = login(form.email, form.password, role);
+    const result = await login(form.email, form.password);
 
     if (result.success) {
-      navigate(result.user.role === "seller" ? "/seller/dashboard" : "/");
-    } else {
-      setError(result.error);
-    }
+
+  if (result.user.role !== role) {
+    setError(`This account is a ${result.user.role}. Please select the correct tab.`);
+    setLoading(false);
+    return;
+  }
+
+  navigate(
+    result.user.role === "seller"
+      ? "/seller/dashboard"
+      : "/"
+  );
+
+} else {
+  setError(result.error);
+}
 
     setLoading(false);
   };
