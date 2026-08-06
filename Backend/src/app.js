@@ -15,13 +15,14 @@ app.use(express.json());
 // Routes
 const authRoutes = require("./routes/authRoutes");
 const productRoutes = require("./routes/productRoutes");
-
+const cartRoutes = require("./routes/cartRoutes");
 // Middleware
 const { protect } = require("./middleware/authMiddleware");
 
 // API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/cart", cartRoutes);
 
 // Home Route
 app.get("/", (req, res) => {

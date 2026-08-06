@@ -37,7 +37,7 @@ if (cartItems.length === 0) {
     // Place the order first (save to localStorage)
     const transactionId = generateTransactionId();
     const order = placeOrder({
-      customerId: currentUser.id,
+      customerId: currentUser._id,
       customerName: currentUser.name,
       customerEmail: currentUser.email,
       shippingAddress: { ...form },

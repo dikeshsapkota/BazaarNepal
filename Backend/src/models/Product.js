@@ -45,19 +45,19 @@ const productSchema = new mongoose.Schema(
       default: "",
     },
 
-    // NEW
+ 
     tags: {
       type: [String],
       default: [],
     },
 
-    // NEW
+   
     rating: {
       type: Number,
       default: 0,
     },
 
-    // NEW
+  
     reviews: {
       type: Number,
       default: 0,

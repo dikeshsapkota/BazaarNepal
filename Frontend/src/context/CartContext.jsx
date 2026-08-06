@@ -1,68 +1,89 @@
 import { createContext, useContext, useState, useEffect } from "react";
-
+import {
+  getCart,
+  addToCart as addToCartApi,
+  updateCartItem,
+  removeCartItem,
+  clearCart as clearCartApi,
+} from "../api/cartApi";
 const CartContext = createContext(null);
 
 export function CartProvider({ children }) {
   const [cartItems, setCartItems] = useState([]);
   const [appliedPromo, setAppliedPromo] = useState(null);
 
-  useEffect(() => {
-    const saved = localStorage.getItem("ecom_cart");
-    if (saved) setCartItems(JSON.parse(saved));
-    const promo = localStorage.getItem("ecom_applied_promo");
-    if (promo) setAppliedPromo(JSON.parse(promo));
-  }, []);
+ useEffect(() => {
+  loadCart();
 
-  const saveCart = (items) => {
-    localStorage.setItem("ecom_cart", JSON.stringify(items));
+  const promo = localStorage.getItem("ecom_applied_promo");
+
+  if (promo) {
+    setAppliedPromo(JSON.parse(promo));
+  }
+}, []);
+
+const loadCart = async () => {
+  try {
+    const { data } = await getCart();
+
+    const items = data.cart.items
+      .filter((item) => item.product)
+      .map((item) => ({
+        productId: item.product._id,
+        name: item.product.name,
+        price: item.product.price,
+        image: item.product.image,
+        stock: item.product.stock,
+        sellerId:
+          typeof item.product.seller === "object"
+            ? item.product.seller._id
+            : item.product.seller,
+        quantity: item.quantity,
+      }));
+
     setCartItems(items);
-  };
+  } catch (err) {
+    console.error("Load cart failed:", err);
+  }
+};
 
-  const addToCart = (product, quantity = 1) => {
-    const existing = cartItems.find((item) => item.productId === product.id);
-    let updated;
-    if (existing) {
-      updated = cartItems.map((item) =>
-        item.productId === product.id
-          ? { ...item, quantity: Math.min(item.quantity + quantity, product.stock) }
-          : item
-      );
-    } else {
-      updated = [
-        ...cartItems,
-        {
-          productId: product.id,
-          name: product.name,
-          price: product.price,
-          image: product.image,
-          sellerId: product.sellerId,
-          stock: product.stock,
-          quantity,
-        },
-      ];
-    }
-    saveCart(updated);
-  };
+const addToCart = async (product, quantity = 1) => {
+  try {
+    await addToCartApi(product._id, quantity);
 
-  const removeFromCart = (productId) => {
-    const updated = cartItems.filter((item) => item.productId !== productId);
-    saveCart(updated);
-  };
+    loadCart();
 
-  const updateQuantity = (productId, quantity) => {
-    if (quantity < 1) return removeFromCart(productId);
-    const updated = cartItems.map((item) =>
-      item.productId === productId ? { ...item, quantity: Math.min(quantity, item.stock) } : item
-    );
-    saveCart(updated);
-  };
+  } catch (err) {
+    console.error(err);
+  }
+};
 
-  const clearCart = () => {
-    saveCart([]);
-    setAppliedPromo(null);
-    localStorage.removeItem("ecom_cart");
-    localStorage.removeItem("ecom_applied_promo");
-  };
+  
+
+  const removeFromCart = async (productId) => {
+  await removeCartItem(productId);
+
+  loadCart();
+};
+
+  const updateQuantity = async (productId, quantity) => {
+  await updateCartItem(productId, quantity);
+
+  loadCart();
+};
+
+const clearCart = async () => {
+  try {
+    await clearCartApi();
+
+    setCartItems([]);
+
+    removePromo();
+
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   const applyPromo = (promoData) => {
     setAppliedPromo(promoData);

@@ -2,7 +2,6 @@ import { createContext, useContext, useState, useEffect } from "react";
 
 import {
   getProducts,
-  getSellerProducts,
   createProduct,
   updateProduct as updateProductApi,
   deleteProduct as deleteProductApi,
@@ -30,7 +29,7 @@ export function StoreProvider({ children }) {
   useEffect(() => {
     const loadProducts = async () => {
       try {
-        const { data } = await getProducts(); // or API.get("/products")
+        const { data } = await getProducts();  
         setProducts(data.products);
       } catch (err) {
         console.error(err);
