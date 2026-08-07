@@ -1,8 +1,6 @@
 import { Trash2, Minus, Plus } from "lucide-react";
 import { useCart } from "../context/CartContext";
-<div className="max-w-6xl mx-auto px-4 py-8">
- 
-</div>
+
 export default function CartItem({ item }) {
   const { updateQuantity, removeFromCart } = useCart();
 

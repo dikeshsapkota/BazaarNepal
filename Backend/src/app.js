@@ -16,6 +16,7 @@ app.use(express.json());
 const authRoutes = require("./routes/authRoutes");
 const productRoutes = require("./routes/productRoutes");
 const cartRoutes = require("./routes/cartRoutes");
+const orderRoutes = require("./routes/orderRoutes");
 // Middleware
 const { protect } = require("./middleware/authMiddleware");
 
@@ -23,7 +24,7 @@ const { protect } = require("./middleware/authMiddleware");
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
-
+app.use("/api/orders", orderRoutes);
 // Home Route
 app.get("/", (req, res) => {
   res.json({
