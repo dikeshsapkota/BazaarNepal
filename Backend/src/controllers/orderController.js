@@ -9,6 +9,7 @@ exports.createOrder = async (req, res) => {
       shippingAddress,
       promoCode,
       paymentMethod,
+      transactionId,
     } = req.body;
 
     if (!items || items.length === 0) {
@@ -118,6 +119,7 @@ exports.createOrder = async (req, res) => {
       paymentMethod: paymentMethod || "eSewa",
       paymentStatus: "pending",
       status: "processing",
+        transactionId,
     });
 
     for (const item of orderItems) {
@@ -385,6 +387,76 @@ exports.updateOrderStatus = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+exports.verifyEsewaPayment = async (req, res) => {
+  try {
+    const { data } = req.query;
+
+    if (!data) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing eSewa response data",
+      });
+    }
+
+    const decoded = JSON.parse(
+      Buffer.from(data, "base64").toString("utf8")
+    );
+
+    const {
+      transaction_code,
+      status,
+      total_amount,
+      transaction_uuid,
+    } = decoded;
+
+    if (status !== "COMPLETE") {
+      return res.status(400).json({
+        success: false,
+        message: "Payment not completed",
+      });
+    }
+
+    const order = await Order.findOne({
+      transactionId: transaction_uuid,
+    });
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    if (Number(total_amount) !== Number(order.total)) {
+      return res.status(400).json({
+        success: false,
+        message: "Payment amount mismatch",
+      });
+    }
+
+    order.paymentStatus = "paid";
+    order.paymentReference = transaction_code;
+    order.paymentDate = new Date();
+
+    if (order.status === "processing") {
+      order.status = "confirmed";
+    }
+
+    await order.save();
+
+    return res.json({
+      success: true,
+      order,
+    });
+  } catch (error) {
+    console.error("eSewa verification error:", error);
+
+    return res.status(500).json({
       success: false,
       message: error.message,
     });

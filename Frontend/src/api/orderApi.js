@@ -16,3 +16,8 @@ export const updateOrderStatus = (id, status) =>
   API.put(`/orders/${id}/status`, {
     status,
   });
+  
+  export const verifyEsewaPayment = (data) =>
+  API.get("/orders/esewa/verify", {
+    params: { data },
+  });

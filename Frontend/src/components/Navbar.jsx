@@ -9,6 +9,7 @@ import {
   ShoppingBag,
   ShoppingCart,
   Store,
+  User,
   UserRound,
   X,
 } from "lucide-react";
@@ -122,6 +123,14 @@ export default function Navbar() {
                       {currentUser.role === "seller" ? "Seller" : "Customer"}
                     </p>
                   </div>
+                  <Link
+                    to="/profile"
+                    onClick={() => setDropdownOpen(false)}
+                    className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-violet-50 hover:text-violet-600 transition-colors"
+                  >
+                    <User className="h-4 w-4" />
+                    My Profile
+                  </Link>
                   <button
                     onClick={handleLogout}
                     className="w-full text-left px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors flex items-center gap-2"
@@ -184,9 +193,19 @@ export default function Navbar() {
                 </span>
               </Link>
               {currentUser && (
+                <Link
+                  to="/profile"
+                  onClick={closeMenu}
+                  className="py-2.5 text-sm text-gray-700 hover:text-violet-600 transition-colors"
+                >
+                  My Profile
+                </Link>
+              )}
+              {currentUser && (
                 <Link to="/orders" onClick={closeMenu} className="py-2.5 text-sm text-gray-700 hover:text-violet-600 transition-colors">My Orders</Link>
               )}
             </>
+
           )}
 
           {!currentUser && (

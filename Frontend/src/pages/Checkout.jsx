@@ -54,14 +54,15 @@ export default function Checkout() {
         promoCode: appliedPromo?.code || null,
 
         paymentMethod: "eSewa",
+        transactionId,
       });
       localStorage.setItem(
         "ecom_pending_order",
         JSON.stringify(data.order)
       );
 
-      await clearCart();
-console.log("ORDER FROM BACKEND:", data.order);
+      
+      console.log("ORDER FROM BACKEND:", data.order);
       await initiateEsewaPayment({
         amount: data.order.total,
         taxAmount: 0,

@@ -17,6 +17,7 @@ import SellerDashboard from "./pages/seller/SellerDashboard";
 import SellerOrders from "./pages/seller/SellerOrders";
 import ManageProducts from "./pages/seller/ManageProducts";
 import PromoCodes from "./pages/seller/PromoCodes";
+import Profile from "./pages/Profile";
 
 export default function App() {
   return (
@@ -41,6 +42,14 @@ export default function App() {
                     element={
                       <ProtectedRoute requiredRole="customer">
                         <Cart />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/profile"
+                    element={
+                      <ProtectedRoute>
+                        <Profile />
                       </ProtectedRoute>
                     }
                   />

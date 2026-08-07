@@ -1,106 +1,134 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { Check } from "lucide-react";
+import { Link, useSearchParams } from "react-router-dom";
+import { CheckCircle, XCircle } from "lucide-react";
+import { verifyEsewaPayment } from "../api/orderApi";
+import { useCart } from "../context/CartContext";
 
 export default function OrderSuccess() {
+  const [searchParams] = useSearchParams();
+  const { clearCart } = useCart();
+
+  const [loading, setLoading] = useState(true);
   const [order, setOrder] = useState(null);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    // Read the data returned by eSewa
-    const params = new URLSearchParams(window.location.search);
-    const encodedData = params.get("data");
+    const verifyPayment = async () => {
+      try {
+        const data = searchParams.get("data");
 
-    let payment = null;
+        if (!data) {
+          setError("Payment response not found.");
+          return;
+        }
 
-    if (encodedData) {
-      payment = JSON.parse(atob(encodedData));
-      console.log(payment); // Check the payment data in the console
-    }
+        const response = await verifyEsewaPayment(data);
 
-    const pending = localStorage.getItem("ecom_pending_order");
+        setOrder(response.data.order);
 
-    if (pending) {
-      const order = JSON.parse(pending);
+        await clearCart();
 
-      if (payment) {
-        order.status = payment.status;
-        order.transactionCode = payment.transaction_code;
-        order.transactionUuid = payment.transaction_uuid;
-        order.total = payment.total_amount;
+        localStorage.removeItem("ecom_pending_order");
+      } catch (err) {
+        console.error("Payment verification failed:", err);
+
+        setError(
+          err.response?.data?.message ||
+            "Payment verification failed."
+        );
+      } finally {
+        setLoading(false);
       }
+    };
 
-      setOrder(order);
-      localStorage.removeItem("cart");
-      localStorage.setItem("ecom_pending_order", JSON.stringify(order));
-    }
-  }, []);
-  if (!order) {
+    verifyPayment();
+  }, [searchParams, clearCart]);
+
+  if (loading) {
     return (
-      <div className="text-center py-20">
-        <h2>No order found.</h2>
-        <p>Please complete a payment first.</p>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <p className="text-gray-500">
+          Verifying payment...
+        </p>
       </div>
     );
   }
-  return (
-    <div className="success-page">
-      <div className="success-card">
-        <div className="success-animation">
-          <div className="success-circle">
-            <Check className="success-check" aria-hidden="true" />
-          </div>
-        </div>
-        <h1 className="success-title">Order Placed Successfully!</h1>
-        <p className="success-subtitle">
-          Thank you for your purchase. Your payment via eSewa was processed successfully.
-        </p>
-        {order && (
-          <div className="order-details-box">
-            <div className="order-detail-row">
-              <span>Order ID</span>
-              <span className="order-detail-value">
-                {order.transactionUuid || order.transactionId}
-              </span>
-            </div>
-            <div className="order-detail-row">
-              <span>Transaction ID</span>
-              <span className="order-detail-value mono">
-                {order.transactionId}
-              </span>
-            </div>
-            <div className="order-detail-row">
-              <span>Amount Paid</span>
-              <span className="order-detail-value">Rs. {order.total?.toLocaleString()}</span>
-            </div>
-            <div className="order-detail-row">
-              <span>Payment Date</span>
 
-              <span className="order-detail-value">
-                {new Date(order.createdAt).toLocaleString()}
-              </span>
-            </div>
-            <div className="order-detail-row">
-              <span>Payment Method</span>
-              <span className="order-detail-value esewa-text">eSewa</span>
-            </div>
-            <div className="order-detail-row">
-              <span>Status</span>
-              <span
-                className={`status-badge ${order?.status === "COMPLETE"
-                  ? "completed"
-                  : order?.status === "FAILED"
-                    ? "failed"
-                    : "processing"
-                  }`}
-              >
-                {order?.status || "Processing"}
-              </span>
-            </div>
-          </div>
-        )}
-        <div className="success-actions">
-          <Link to="/orders" className="btn-primary">View My Orders</Link>
-          <Link to="/" className="btn-outline">Continue Shopping</Link>
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+        <div className="w-full max-w-md rounded-2xl border bg-white p-8 text-center shadow-sm">
+          <XCircle className="mx-auto mb-4 h-16 w-16 text-red-500" />
+
+          <h1 className="text-2xl font-bold text-gray-900">
+            Payment Verification Failed
+          </h1>
+
+          <p className="mt-3 text-gray-500">
+            {error}
+          </p>
+
+          <Link
+            to="/cart"
+            className="mt-6 inline-block rounded-xl bg-violet-600 px-6 py-3 font-semibold text-white"
+          >
+            Back to Cart
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <div className="w-full max-w-lg rounded-3xl border bg-white p-8 text-center shadow-sm">
+
+        <CheckCircle className="mx-auto mb-5 h-20 w-20 text-green-500" />
+
+        <h1 className="text-3xl font-bold text-gray-900">
+          Payment Successful
+        </h1>
+
+        <p className="mt-2 text-gray-500">
+          Your order has been confirmed.
+        </p>
+
+        <div className="mt-6 space-y-2 rounded-xl bg-gray-50 p-5 text-left">
+          <p>
+            <strong>Order:</strong>{" "}
+            #{order?._id?.slice(-8).toUpperCase()}
+          </p>
+
+          <p>
+            <strong>Total:</strong>{" "}
+            Rs. {Number(order?.total || 0).toLocaleString()}
+          </p>
+
+          <p>
+            <strong>Payment:</strong>{" "}
+            {order?.paymentStatus}
+          </p>
+
+          <p>
+            <strong>Status:</strong>{" "}
+            {order?.status}
+          </p>
+        </div>
+
+        <div className="mt-6 flex flex-col sm:flex-row justify-center gap-3">
+          <Link
+            to="/orders"
+            className="rounded-xl bg-violet-600 px-6 py-3 font-semibold text-white"
+          >
+            View Orders
+          </Link>
+
+          <Link
+            to="/"
+            className="rounded-xl border px-6 py-3 font-semibold text-gray-700"
+          >
+            Continue Shopping
+          </Link>
         </div>
       </div>
     </div>

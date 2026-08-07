@@ -7,6 +7,7 @@ const {
   getSellerOrders,
   getSellerDashboardStats,
   updateOrderStatus,
+   verifyEsewaPayment,
 } = require("../controllers/orderController");
 
 const {
@@ -51,6 +52,12 @@ router.get(
   authorize("seller"),
   getSellerOrders
 );
-
+// Verify eSewa payment
+router.get(
+  "/esewa/verify",
+  protect,
+  authorize("customer"),
+  verifyEsewaPayment
+);
 
 module.exports = router;
