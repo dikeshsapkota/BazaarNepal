@@ -6,6 +6,7 @@ const {
   getMyOrders,
   getSellerOrders,
   getSellerDashboardStats,
+  updateOrderStatus,
 } = require("../controllers/orderController");
 
 const {
@@ -36,7 +37,13 @@ router.get(
   authorize("seller"),
   getSellerDashboardStats
 );
-
+// Seller updates order status for their items
+router.put(
+  "/:id/status",
+  protect,
+  authorize("seller"),
+  updateOrderStatus
+);
 // Seller gets orders containing their products
 router.get(
   "/seller",
@@ -44,5 +51,6 @@ router.get(
   authorize("seller"),
   getSellerOrders
 );
+
 
 module.exports = router;

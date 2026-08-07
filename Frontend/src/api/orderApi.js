@@ -11,3 +11,8 @@ export const getSellerOrders = () =>
 
 export const getSellerDashboardStats = () =>
   API.get("/orders/seller/stats");
+
+export const updateOrderStatus = (id, status) =>
+  API.put(`/orders/${id}/status`, {
+    status,
+  });

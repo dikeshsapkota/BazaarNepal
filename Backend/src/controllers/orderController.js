@@ -339,3 +339,54 @@ exports.getSellerDashboardStats = async (req, res) => {
     });
   }
 };
+exports.updateOrderStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const sellerId = req.user.id;
+
+    const allowedStatuses = [
+      "processing",
+      "confirmed",
+      "shipped",
+      "delivered",
+      "cancelled",
+    ];
+
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid order status",
+      });
+    }
+
+    const order = await Order.findOne({
+      _id: req.params.id,
+      "items.seller": sellerId,
+    });
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found or access denied",
+      });
+    }
+
+    order.status = status;
+
+    await order.save();
+
+    const updatedOrder = await Order.findById(order._id)
+      .populate("customer", "name email")
+      .populate("items.product", "name image");
+
+    res.json({
+      success: true,
+      order: updatedOrder,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
