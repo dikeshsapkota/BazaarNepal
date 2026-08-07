@@ -46,13 +46,31 @@ export default function Navbar() {
 
           {currentUser?.role === "seller" ? (
             <>
-              <Link to="/seller/dashboard" className="text-sm text-gray-600 hover:text-violet-600 transition-colors">
+              <Link
+                to="/seller/dashboard"
+                className="text-sm text-gray-600 hover:text-violet-600 transition-colors"
+              >
                 Dashboard
               </Link>
-              <Link to="/seller/products" className="text-sm text-gray-600 hover:text-violet-600 transition-colors">
+
+              <Link
+                to="/seller/products"
+                className="text-sm text-gray-600 hover:text-violet-600 transition-colors"
+              >
                 Products
               </Link>
-              <Link to="/seller/promos" className="text-sm text-gray-600 hover:text-violet-600 transition-colors">
+
+              <Link
+                to="/seller/orders"
+                className="text-sm text-gray-600 hover:text-violet-600 transition-colors"
+              >
+                Orders
+              </Link>
+
+              <Link
+                to="/seller/promos"
+                className="text-sm text-gray-600 hover:text-violet-600 transition-colors"
+              >
                 Promo Codes
               </Link>
             </>
@@ -150,6 +168,9 @@ export default function Navbar() {
           {currentUser?.role === "seller" ? (
             <>
               <Link to="/seller/dashboard" onClick={closeMenu} className="py-2.5 text-sm text-gray-700 hover:text-violet-600 transition-colors">Dashboard</Link>
+              <Link
+                to="/seller/orders"
+                className="text-sm text-gray-600 hover:text-violet-600 transition-colors" >Orders</Link>
               <Link to="/seller/products" onClick={closeMenu} className="py-2.5 text-sm text-gray-700 hover:text-violet-600 transition-colors">Products</Link>
               <Link to="/seller/promos" onClick={closeMenu} className="py-2.5 text-sm text-gray-700 hover:text-violet-600 transition-colors">Promo Codes</Link>
             </>

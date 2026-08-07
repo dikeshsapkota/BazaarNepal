@@ -1,7 +1,14 @@
-import { useState } from "react";
-import { useStore } from "../../context/StoreContext";
+
 import { useAuth } from "../../context/AuthContext";
 import { Check, Package, Pencil, Plus, Trash2, X } from "lucide-react";
+import { useEffect, useState } from "react";
+
+import {
+  getSellerProducts,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+} from "../../api/productApi";
 
 const CATEGORIES = ["Electronics", "Fashion", "Food & Beverages", "Sports & Fitness", "Art & Crafts", "Home & Garden", "Books", "Other"];
 
@@ -19,8 +26,23 @@ const EMPTY_FORM = {
 export default function ManageProducts() {
   const { currentUser } = useAuth();
   console.log(currentUser);
-  const { getProductsBySeller, addProduct, updateProduct, deleteProduct } = useStore();
-  const products = getProductsBySeller(currentUser._id);
+  const [products, setProducts] = useState([]);
+const [loadingProducts, setLoadingProducts] = useState(true);
+
+const loadProducts = async () => {
+  try {
+    const { data } = await getSellerProducts();
+    setProducts(data.products);
+  } catch (err) {
+    console.error("Failed to load seller products:", err);
+  } finally {
+    setLoadingProducts(false);
+  }
+};
+
+useEffect(() => {
+  loadProducts();
+}, []);
 
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -62,8 +84,10 @@ export default function ManageProducts() {
     try {
   if (editingId) {
     await updateProduct(editingId, productData);
+    await loadProducts();
   } else {
-    await addProduct(productData);
+    await createProduct(productData);
+await loadProducts();
   }
 
   setSaved(true);
@@ -82,9 +106,13 @@ export default function ManageProducts() {
 const handleDelete = async (id) => {
   try {
     await deleteProduct(id);
+    await loadProducts();
     setDeleteConfirm(null);
   } catch (err) {
-    alert(err.response?.data?.message || "Failed to delete product");
+    alert(
+      err.response?.data?.message ||
+        "Failed to delete product"
+    );
   }
 };
   return (

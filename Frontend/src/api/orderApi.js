@@ -8,3 +8,6 @@ export const getMyOrders = () =>
 
 export const getSellerOrders = () =>
   API.get("/orders/seller");
+
+export const getSellerDashboardStats = () =>
+  API.get("/orders/seller/stats");

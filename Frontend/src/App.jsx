@@ -14,6 +14,7 @@ import Checkout from "./pages/Checkout";
 import OrderSuccess from "./pages/OrderSuccess";
 import OrderHistory from "./pages/customer/OrderHistory";
 import SellerDashboard from "./pages/seller/SellerDashboard";
+import SellerOrders from "./pages/seller/SellerOrders";
 import ManageProducts from "./pages/seller/ManageProducts";
 import PromoCodes from "./pages/seller/PromoCodes";
 
@@ -74,6 +75,14 @@ export default function App() {
                     element={
                       <ProtectedRoute requiredRole="seller">
                         <ManageProducts />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/seller/orders"
+                    element={
+                      <ProtectedRoute requiredRole="seller">
+                        <SellerOrders />
                       </ProtectedRoute>
                     }
                   />

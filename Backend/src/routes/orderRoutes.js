@@ -5,6 +5,7 @@ const {
   createOrder,
   getMyOrders,
   getSellerOrders,
+  getSellerDashboardStats,
 } = require("../controllers/orderController");
 
 const {
@@ -26,6 +27,14 @@ router.get(
   protect,
   authorize("customer"),
   getMyOrders
+);
+
+// Seller dashboard stats
+router.get(
+  "/seller/stats",
+  protect,
+  authorize("seller"),
+  getSellerDashboardStats
 );
 
 // Seller gets orders containing their products

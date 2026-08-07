@@ -208,3 +208,134 @@ exports.getSellerOrders = async (req, res) => {
     });
   }
 };
+//seller dashboard
+exports.getSellerDashboardStats = async (req, res) => {
+  try {
+    const sellerId = req.user.id;
+
+    // All orders containing this seller's products
+    const orders = await Order.find({
+      "items.seller": sellerId,
+    })
+      .populate("customer", "name email")
+      .populate("items.product", "name image")
+      .sort({ createdAt: -1 });
+
+    // Seller products
+    const products = await Product.find({
+      seller: sellerId,
+    });
+
+    let totalRevenue = 0;
+    const productSales = {};
+    const monthlySales = {};
+
+    orders.forEach((order) => {
+      // Ignore cancelled orders
+      if (order.status === "cancelled") return;
+
+      const sellerItems = order.items.filter(
+        (item) => item.seller.toString() === sellerId
+      );
+
+      sellerItems.forEach((item) => {
+        const revenue =
+          Number(item.price) * Number(item.quantity);
+
+        totalRevenue += revenue;
+
+        // Top products
+        const productId =
+          item.product?._id?.toString() ||
+          item.product?.toString();
+
+        if (!productSales[productId]) {
+          productSales[productId] = {
+            name:
+              item.product?.name ||
+              "Product",
+            revenue: 0,
+            units: 0,
+          };
+        }
+
+        productSales[productId].revenue += revenue;
+        productSales[productId].units += item.quantity;
+
+        // Monthly sales
+        const month = new Date(
+          order.createdAt
+        ).toLocaleDateString("en-US", {
+          month: "short",
+          year: "2-digit",
+        });
+
+        monthlySales[month] =
+          (monthlySales[month] || 0) +
+          revenue;
+      });
+    });
+
+    const topProducts = Object.values(productSales)
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 5);
+
+    const lowStockProducts = products.filter(
+      (product) =>
+        product.stock > 0 &&
+        product.stock <= 5
+    );
+
+    // Prepare recent orders containing only seller items
+    const recentOrders = orders
+      .map((order) => {
+        const sellerItems = order.items.filter(
+          (item) =>
+            item.seller.toString() === sellerId
+        );
+
+        return {
+          _id: order._id,
+          customer: order.customer,
+          items: sellerItems,
+          status: order.status,
+          paymentStatus: order.paymentStatus,
+          paymentMethod: order.paymentMethod,
+          createdAt: order.createdAt,
+        };
+      })
+      .filter((order) => order.items.length > 0)
+      .slice(0, 5);
+
+    const totalOrders = orders.filter(
+      (order) => order.status !== "cancelled"
+    ).length;
+
+    const averageOrderValue =
+      totalOrders > 0
+        ? Math.round(
+            totalRevenue / totalOrders
+          )
+        : 0;
+
+    res.json({
+      success: true,
+
+      stats: {
+        totalRevenue,
+        totalOrders,
+        productCount: products.length,
+        averageOrderValue,
+        topProducts,
+        monthlySales,
+        lowStockProducts,
+        recentOrders,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
