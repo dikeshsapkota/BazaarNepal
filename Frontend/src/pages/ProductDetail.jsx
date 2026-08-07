@@ -3,6 +3,7 @@ import { useStore } from "../context/StoreContext";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
+import { ArrowLeft, Check, Minus, Plus, ShoppingCart, Star, XCircle, Zap } from "lucide-react";
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -51,7 +52,8 @@ export default function ProductDetail() {
         onClick={() => navigate(-1)}
         className="mb-6 inline-flex items-center gap-2 text-violet-600 font-medium hover:text-violet-700"
       >
-        ← Back
+        <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+        Back
       </button>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 bg-white rounded-3xl shadow-lg p-8">
@@ -83,9 +85,15 @@ export default function ProductDetail() {
           </h1>
 
           <div className="flex items-center gap-3 mt-4">
-            <span className="text-yellow-500 text-xl">
-            {"★".repeat(Math.round(product.rating ?? 0))}
-{"☆".repeat(5 - Math.round(product.rating ?? 0))}
+            <span className="flex items-center gap-1 text-yellow-500">
+              {Array.from({ length: 5 }, (_, index) => (
+                <Star
+                  key={index}
+                  className="h-5 w-5"
+                  fill={index < Math.round(product.rating ?? 0) ? "currentColor" : "none"}
+                  aria-hidden="true"
+                />
+              ))}
             </span>
 
             <span className="text-gray-500">
@@ -136,12 +144,14 @@ export default function ProductDetail() {
           {/* Stock */}
           <div className="mt-6">
             {product.stock > 0 ? (
-              <span className="inline-flex items-center rounded-full bg-green-100 text-green-700 px-4 py-2 text-sm font-medium">
-                ✓ In Stock ({product.stock} available)
+              <span className="inline-flex items-center gap-2 rounded-full bg-green-100 text-green-700 px-4 py-2 text-sm font-medium">
+                <Check className="h-4 w-4" aria-hidden="true" />
+                In Stock ({product.stock} available)
               </span>
             ) : (
-              <span className="inline-flex items-center rounded-full bg-red-100 text-red-700 px-4 py-2 text-sm font-medium">
-                ✗ Out of Stock
+              <span className="inline-flex items-center gap-2 rounded-full bg-red-100 text-red-700 px-4 py-2 text-sm font-medium">
+                <XCircle className="h-4 w-4" aria-hidden="true" />
+                Out of Stock
               </span>
             )}
           </div>
@@ -161,8 +171,9 @@ export default function ProductDetail() {
                   <button
                     onClick={() => setQty(Math.max(1, qty - 1))}
                     className="px-4 py-2 hover:bg-gray-100"
+                    aria-label="Decrease quantity"
                   >
-                    −
+                    <Minus className="h-4 w-4" aria-hidden="true" />
                   </button>
 
                   <span className="px-5 font-semibold">
@@ -174,8 +185,9 @@ export default function ProductDetail() {
                       setQty(Math.min(product.stock, qty + 1))
                     }
                     className="px-4 py-2 hover:bg-gray-100"
+                    aria-label="Increase quantity"
                   >
-                    +
+                    <Plus className="h-4 w-4" aria-hidden="true" />
                   </button>
 
                 </div>
@@ -186,20 +198,31 @@ export default function ProductDetail() {
 
                 <button
                   onClick={handleAddToCart}
-                  className={`flex-1 rounded-xl py-3 font-semibold transition ${
+                  className={`flex flex-1 items-center justify-center gap-2 rounded-xl py-3 font-semibold transition ${
                     added
                       ? "bg-green-600 text-white"
                       : "bg-violet-600 hover:bg-violet-700 text-white"
                   }`}
                 >
-                  {added ? "✓ Added to Cart!" : "🛒 Add to Cart"}
+                  {added ? (
+                    <>
+                      <Check className="h-5 w-5" aria-hidden="true" />
+                      Added to Cart
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingCart className="h-5 w-5" aria-hidden="true" />
+                      Add to Cart
+                    </>
+                  )}
                 </button>
 
                 <button
                   onClick={handleBuyNow}
-                  className="flex-1 rounded-xl py-3 border-2 border-violet-600 text-violet-600 hover:bg-violet-50 font-semibold transition"
+                  className="flex flex-1 items-center justify-center gap-2 rounded-xl py-3 border-2 border-violet-600 text-violet-600 hover:bg-violet-50 font-semibold transition"
                 >
-                  ⚡ Buy Now
+                  <Zap className="h-5 w-5" aria-hidden="true" />
+                  Buy Now
                 </button>
 
               </div>

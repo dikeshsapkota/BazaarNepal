@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { ShoppingBag, ShoppingCart, Store } from "lucide-react";
 
 export default function Login() {
   const { login } = useAuth();
@@ -69,9 +70,10 @@ export default function Login() {
 
           <Link
             to="/"
-            className="text-3xl font-bold text-violet-600"
+            className="inline-flex items-center justify-center gap-2 text-3xl font-bold text-violet-600"
           >
-            🛍️ BazaarNepal
+            <ShoppingBag className="h-8 w-8" aria-hidden="true" />
+            BazaarNepal
           </Link>
 
           <h1 className="text-3xl font-bold mt-5">
@@ -94,13 +96,14 @@ export default function Login() {
               setRole("customer");
               setError("");
             }}
-            className={`py-2 rounded-lg font-medium transition ${
+            className={`inline-flex items-center justify-center gap-2 py-2 rounded-lg font-medium transition ${
               role === "customer"
                 ? "bg-violet-600 text-white shadow"
                 : "text-gray-600"
             }`}
           >
-            🛒 Customer
+            <ShoppingCart className="h-4 w-4" aria-hidden="true" />
+            Customer
           </button>
 
           <button
@@ -109,13 +112,14 @@ export default function Login() {
               setRole("seller");
               setError("");
             }}
-            className={`py-2 rounded-lg font-medium transition ${
+            className={`inline-flex items-center justify-center gap-2 py-2 rounded-lg font-medium transition ${
               role === "seller"
                 ? "bg-violet-600 text-white shadow"
                 : "text-gray-600"
             }`}
           >
-            🏪 Seller
+            <Store className="h-4 w-4" aria-hidden="true" />
+            Seller
           </button>
 
         </div>

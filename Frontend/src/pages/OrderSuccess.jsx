@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { Check } from "lucide-react";
 
 export default function OrderSuccess() {
   const [order, setOrder] = useState(null);
@@ -46,7 +47,7 @@ export default function OrderSuccess() {
       <div className="success-card">
         <div className="success-animation">
           <div className="success-circle">
-            <span className="success-check">✓</span>
+            <Check className="success-check" aria-hidden="true" />
           </div>
         </div>
         <h1 className="success-title">Order Placed Successfully!</h1>

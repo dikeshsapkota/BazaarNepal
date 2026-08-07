@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useStore } from "../../context/StoreContext";
 import { useAuth } from "../../context/AuthContext";
+import { Check, Package, Pencil, Plus, Trash2, X } from "lucide-react";
 
 const CATEGORIES = ["Electronics", "Fashion", "Food & Beverages", "Sports & Fitness", "Art & Crafts", "Home & Garden", "Books", "Other"];
 
@@ -95,7 +96,10 @@ const handleDelete = async (id) => {
             <p className="text-gray-500 mt-1">{products.length} products listed</p>
           </div>
           <button
-            className="bg-violet-600 hover:bg-violet-700 text-white px-5 py-3 rounded-xl font-semibold transition" onClick={openAdd}>+ Add Product</button>
+            className="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-700 text-white px-5 py-3 rounded-xl font-semibold transition" onClick={openAdd}>
+            <Plus className="h-5 w-5" aria-hidden="true" />
+            Add Product
+          </button>
         </div>
 
         {/* Product Form Modal */}
@@ -115,9 +119,10 @@ const handleDelete = async (id) => {
 
         <button
           onClick={() => setShowForm(false)}
-          className="text-2xl text-gray-500 hover:text-red-500 transition"
+          className="rounded-lg p-2 text-gray-500 hover:bg-red-50 hover:text-red-500 transition"
+          aria-label="Close product form"
         >
-          ✕
+          <X className="h-5 w-5" aria-hidden="true" />
         </button>
       </div>
 
@@ -304,17 +309,14 @@ const handleDelete = async (id) => {
 
           <button
             type="submit"
-            className={`rounded-xl px-6 py-3 font-semibold text-white transition ${
+            className={`inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-semibold text-white transition ${
               saved
                 ? "bg-green-600"
                 : "bg-violet-600 hover:bg-violet-700"
             }`}
           >
-            {saved
-              ? "✓ Saved!"
-              : editingId
-              ? "Update Product"
-              : "Add Product"}
+            {saved && <Check className="h-5 w-5" aria-hidden="true" />}
+            {saved ? "Saved" : editingId ? "Update Product" : "Add Product"}
           </button>
         </div>
       </form>
@@ -325,7 +327,9 @@ const handleDelete = async (id) => {
         {/* Products Grid */}
 {products.length === 0 ? (
   <div className="bg-white rounded-3xl shadow-md p-12 text-center">
-    <div className="text-6xl mb-4">📦</div>
+    <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-violet-100">
+      <Package className="h-10 w-10 text-violet-600" aria-hidden="true" />
+    </div>
 
     <h3 className="text-2xl font-bold text-gray-800 mb-2">
       No products yet
@@ -337,9 +341,10 @@ const handleDelete = async (id) => {
 
     <button
       onClick={openAdd}
-      className="bg-violet-600 hover:bg-violet-700 text-white font-semibold px-6 py-3 rounded-xl transition"
+      className="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-700 text-white font-semibold px-6 py-3 rounded-xl transition"
     >
-      + Add Product
+      <Plus className="h-5 w-5" aria-hidden="true" />
+      Add Product
     </button>
   </div>
 ) : (
@@ -361,16 +366,18 @@ const handleDelete = async (id) => {
           <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-3">
             <button
               onClick={() => openEdit(product)}
-              className="bg-white text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-100 transition"
+              className="inline-flex items-center gap-2 bg-white text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-100 transition"
             >
-              ✏️ Edit
+              <Pencil className="h-4 w-4" aria-hidden="true" />
+              Edit
             </button>
 
             <button
               onClick={() => setDeleteConfirm(product._id)}
-              className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
+              className="inline-flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
             >
-              🗑 Delete
+              <Trash2 className="h-4 w-4" aria-hidden="true" />
+              Delete
             </button>
           </div>
         </div>
@@ -415,7 +422,9 @@ const handleDelete = async (id) => {
   <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
     <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center">
 
-      <div className="text-5xl mb-4">🗑️</div>
+      <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+        <Trash2 className="h-8 w-8 text-red-600" aria-hidden="true" />
+      </div>
 
       <h3 className="text-2xl font-bold text-gray-800 mb-2">
         Delete Product?

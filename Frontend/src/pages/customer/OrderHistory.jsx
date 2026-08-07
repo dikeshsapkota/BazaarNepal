@@ -1,6 +1,7 @@
 import { useStore } from "../../context/StoreContext";
 import { useAuth } from "../../context/AuthContext";
 import { Link } from "react-router-dom";
+import { CreditCard, Package, Tag } from "lucide-react";
 
 const STATUS_COLORS = {
   processing: "#f59e0b",
@@ -19,7 +20,9 @@ export default function OrderHistory() {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="bg-white rounded-2xl shadow-md p-10 text-center max-w-md w-full">
-        <div className="text-6xl mb-4">📦</div>
+        <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-violet-100">
+          <Package className="h-10 w-10 text-violet-600" aria-hidden="true" />
+        </div>
 
         <h2 className="text-2xl font-bold text-gray-800 mb-2">
           No orders yet
@@ -111,13 +114,15 @@ export default function OrderHistory() {
 
               <div className="space-y-1">
                 {order.promoCode && (
-                  <p className="text-green-600 text-sm">
-                    🏷️ Promo: {order.promoCode}
+                  <p className="flex items-center gap-2 text-green-600 text-sm">
+                    <Tag className="h-4 w-4" aria-hidden="true" />
+                    Promo: {order.promoCode}
                   </p>
                 )}
 
-                <p className="text-gray-600 text-sm">
-                  💳 {order.paymentMethod}
+                <p className="flex items-center gap-2 text-gray-600 text-sm">
+                  <CreditCard className="h-4 w-4" aria-hidden="true" />
+                  {order.paymentMethod}
                 </p>
               </div>
 

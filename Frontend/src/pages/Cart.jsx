@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useStore } from "../context/StoreContext";
 import CartItem from "../components/CartItem";
+import { BadgePercent, Check, Lock, ShoppingCart, Trash2 } from "lucide-react";
 
 export default function Cart() {
   const { cartItems, cartTotal, discount, finalTotal, appliedPromo, applyPromo, removePromo, clearCart } = useCart();
@@ -22,7 +23,7 @@ export default function Cart() {
     const result = validatePromoCode(promoInput.trim(), cartTotal);
     if (result.valid) {
       applyPromo(result.promo);
-      setPromoSuccess(`🎉 "${result.promo.code}" applied! You save Rs. ${
+      setPromoSuccess(`"${result.promo.code}" applied. You save Rs. ${
         result.promo.type === "percentage"
           ? Math.round((cartTotal * result.promo.discount) / 100).toLocaleString()
           : result.promo.discount.toLocaleString()
@@ -40,7 +41,7 @@ export default function Cart() {
       <div className="w-full max-w-md rounded-3xl bg-white p-10 text-center shadow-lg border border-gray-200">
 
         <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-green-100 text-5xl">
-          🛒
+          <ShoppingCart className="h-12 w-12 text-green-600" aria-hidden="true" />
         </div>
 
         <h2 className="text-3xl font-bold text-gray-900">
@@ -91,9 +92,10 @@ return (
 
           <button
             onClick={clearCart}
-            className="rounded-xl border border-red-300 px-5 py-3 font-medium text-red-600 transition hover:bg-red-50"
+            className="inline-flex items-center gap-2 rounded-xl border border-red-300 px-5 py-3 font-medium text-red-600 transition hover:bg-red-50"
           >
-            🗑 Clear Cart
+            <Trash2 className="h-4 w-4" aria-hidden="true" />
+            Clear Cart
           </button>
 
         </div>
@@ -147,7 +149,10 @@ return (
           <div className="mt-8">
 
             <h4 className="mb-4 text-lg font-semibold text-gray-900">
-              🏷️ Promo Code
+              <span className="inline-flex items-center gap-2">
+                <BadgePercent className="h-5 w-5 text-green-600" aria-hidden="true" />
+                Promo Code
+              </span>
             </h4>
 
             {appliedPromo ? (
@@ -155,7 +160,10 @@ return (
               <div className="flex items-center justify-between rounded-xl bg-green-50 p-4 border border-green-200">
 
                 <span className="font-medium text-green-700">
-                  ✓ {appliedPromo.code}
+                  <span className="inline-flex items-center gap-2">
+                    <Check className="h-4 w-4" aria-hidden="true" />
+                    {appliedPromo.code}
+                  </span>
                 </span>
 
                 <button
@@ -222,11 +230,12 @@ return (
             onClick={() => navigate("/checkout")}
             className="mt-8 w-full rounded-xl bg-green-600 py-4 text-lg font-semibold text-white transition hover:bg-green-700"
           >
-            Proceed to Checkout →
+            Proceed to Checkout
           </button>
 
-          <div className="mt-5 rounded-xl bg-green-50 p-4 text-center text-sm text-green-700">
-            🔒 Secure checkout with eSewa
+          <div className="mt-5 flex items-center justify-center gap-2 rounded-xl bg-green-50 p-4 text-center text-sm text-green-700">
+            <Lock className="h-4 w-4" aria-hidden="true" />
+            Secure checkout with eSewa
           </div>
 
         </div>

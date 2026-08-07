@@ -11,6 +11,8 @@ import {
   SlidersHorizontal,
   SearchX,
   Gift,
+  Headphones,
+  MapPin,
   Wallet,
   ShoppingBag,
 } from "lucide-react";
@@ -62,8 +64,9 @@ export default function Home() {
     {/* Left */}
     <div className="max-w-2xl">
 
-      <span className="inline-flex items-center rounded-full bg-green-100 px-4 py-2 text-sm font-medium text-green-700">
-        🇳🇵 Nepal's Premier Marketplace
+      <span className="inline-flex items-center gap-2 rounded-full bg-green-100 px-4 py-2 text-sm font-medium text-green-700">
+        <MapPin className="h-4 w-4" aria-hidden="true" />
+        Nepal's Premier Marketplace
       </span>
 
       <h1 className="mt-6 text-5xl font-extrabold leading-tight text-gray-900">
@@ -168,8 +171,8 @@ export default function Home() {
 
         <div className="absolute left-0 top-10 flex w-60 items-center gap-4 rounded-2xl bg-white p-5 shadow-xl">
 
-          <div className="text-4xl">
-            🎧
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-green-100 text-green-600">
+            <Headphones className="h-6 w-6" aria-hidden="true" />
           </div>
 
           <div>
@@ -188,8 +191,8 @@ export default function Home() {
 
         <div className="absolute right-0 top-44 flex w-60 items-center gap-4 rounded-2xl bg-white p-5 shadow-xl">
 
-          <div className="text-4xl">
-            🍯
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
+            <Package className="h-6 w-6" aria-hidden="true" />
           </div>
 
           <div>
@@ -208,8 +211,8 @@ export default function Home() {
 
         <div className="absolute bottom-10 left-16 flex w-60 items-center gap-4 rounded-2xl bg-white p-5 shadow-xl">
 
-          <div className="text-4xl">
-            🏷️
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-violet-600">
+            <BadgePercent className="h-6 w-6" aria-hidden="true" />
           </div>
 
           <div>

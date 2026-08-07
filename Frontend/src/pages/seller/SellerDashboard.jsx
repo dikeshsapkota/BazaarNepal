@@ -1,6 +1,17 @@
 import { useStore } from "../../context/StoreContext";
 import { useAuth } from "../../context/AuthContext";
 import { Link } from "react-router-dom";
+import {
+  AlertTriangle,
+  BadgePercent,
+  BarChart3,
+  ClipboardList,
+  DollarSign,
+  Package,
+  Plus,
+  TrendingUp,
+  Trophy,
+} from "lucide-react";
 
 const STATUS_COLORS = {
   processing: "#f59e0b",
@@ -44,9 +55,10 @@ export default function SellerDashboard() {
 
           <Link
             to="/seller/products"
-            className="bg-violet-600 hover:bg-violet-700 text-white px-6 py-3 rounded-xl font-semibold shadow-md transition"
+            className="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-700 text-white px-6 py-3 rounded-xl font-semibold shadow-md transition"
           >
-            + Add Product
+            <Plus className="h-5 w-5" aria-hidden="true" />
+            Add Product
           </Link>
         </div>
 
@@ -55,7 +67,9 @@ export default function SellerDashboard() {
 
   {/* Revenue */}
   <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition">
-    <div className="text-4xl mb-4">💰</div>
+    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-violet-100 text-violet-600">
+      <DollarSign className="h-6 w-6" aria-hidden="true" />
+    </div>
 
     <h2 className="text-3xl font-bold text-violet-600">
       Rs. {stats.totalRevenue?.toLocaleString() || 0}
@@ -68,7 +82,9 @@ export default function SellerDashboard() {
 
   {/* Orders */}
   <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition">
-    <div className="text-4xl mb-4">📦</div>
+    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
+      <Package className="h-6 w-6" aria-hidden="true" />
+    </div>
 
     <h2 className="text-3xl font-bold text-blue-600">
       {stats.totalOrders || 0}
@@ -81,7 +97,9 @@ export default function SellerDashboard() {
 
   {/* Products */}
   <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition">
-    <div className="text-4xl mb-4">🏷️</div>
+    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-green-100 text-green-600">
+      <BadgePercent className="h-6 w-6" aria-hidden="true" />
+    </div>
 
     <h2 className="text-3xl font-bold text-green-600">
       {stats.productCount || 0}
@@ -94,7 +112,9 @@ export default function SellerDashboard() {
 
   {/* Average Order */}
   <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition">
-    <div className="text-4xl mb-4">📊</div>
+    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-orange-100 text-orange-600">
+      <BarChart3 className="h-6 w-6" aria-hidden="true" />
+    </div>
 
     <h2 className="text-3xl font-bold text-orange-500">
       Rs.{" "}
@@ -119,8 +139,9 @@ export default function SellerDashboard() {
 
           {/* Revenue Chart */}
           <div className="xl:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-            <h3 className="text-xl font-bold text-gray-800 mb-6">
-              📈 Monthly Revenue
+            <h3 className="mb-6 flex items-center gap-2 text-xl font-bold text-gray-800">
+              <TrendingUp className="h-5 w-5 text-violet-600" aria-hidden="true" />
+              Monthly Revenue
             </h3>
 
             {Object.keys(stats.monthlySales || {}).length === 0 ? (
@@ -158,8 +179,9 @@ export default function SellerDashboard() {
 
           {/* Top Products */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-            <h3 className="text-xl font-bold text-gray-800 mb-6">
-              🏆 Top Products
+            <h3 className="mb-6 flex items-center gap-2 text-xl font-bold text-gray-800">
+              <Trophy className="h-5 w-5 text-violet-600" aria-hidden="true" />
+              Top Products
             </h3>
 
             {stats.topProducts?.length === 0 ? (
@@ -204,7 +226,7 @@ export default function SellerDashboard() {
         {lowStockProducts.length > 0 && (
           <div className="mb-8 rounded-2xl border border-yellow-300 bg-yellow-50 p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div className="flex items-start gap-3">
-              <div className="text-3xl">⚠️</div>
+              <AlertTriangle className="mt-0.5 h-7 w-7 shrink-0 text-yellow-600" aria-hidden="true" />
 
               <div>
                 <p className="font-semibold text-yellow-800">
@@ -223,15 +245,16 @@ export default function SellerDashboard() {
               to="/seller/products"
               className="bg-yellow-500 hover:bg-yellow-600 text-white px-5 py-2 rounded-xl transition"
             >
-              Manage →
+              Manage
             </Link>
           </div>
         )}
 
         {/* Recent Orders */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-          <h3 className="text-xl font-bold text-gray-800 mb-6">
-            📋 Recent Orders
+          <h3 className="mb-6 flex items-center gap-2 text-xl font-bold text-gray-800">
+            <ClipboardList className="h-5 w-5 text-violet-600" aria-hidden="true" />
+            Recent Orders
           </h3>
 
           {recentOrders.length === 0 ? (

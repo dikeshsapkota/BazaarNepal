@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useStore } from "../../context/StoreContext";
 import { useAuth } from "../../context/AuthContext";
+import { BadgePercent, Check, Dice5, Pencil, Plus, Trash2, X } from "lucide-react";
 
 const EMPTY_FORM = {
   code: "",
@@ -112,7 +113,7 @@ export default function PromoCodes() {
         onClick={openAdd}
         className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-6 py-3 font-semibold text-white shadow hover:bg-violet-700 transition"
       >
-        <span className="text-lg">+</span>
+        <Plus className="h-5 w-5" aria-hidden="true" />
         Create Promo Code
       </button>
 
@@ -136,9 +137,10 @@ export default function PromoCodes() {
 
         <button
           onClick={() => setShowForm(false)}
-          className="text-2xl text-gray-500 hover:text-red-500 transition"
+          className="rounded-lg p-2 text-gray-500 hover:bg-red-50 hover:text-red-500 transition"
+          aria-label="Close promo form"
         >
-          ✕
+          <X className="h-5 w-5" aria-hidden="true" />
         </button>
       </div>
 
@@ -179,9 +181,10 @@ export default function PromoCodes() {
               <button
                 type="button"
                 onClick={generateCode}
-                className="rounded-xl bg-gray-100 px-5 font-medium hover:bg-gray-200 transition"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-gray-100 px-5 py-3 font-medium hover:bg-gray-200 transition"
               >
-                🎲 Generate
+                <Dice5 className="h-4 w-4" aria-hidden="true" />
+                Generate
               </button>
             )}
           </div>
@@ -394,17 +397,14 @@ export default function PromoCodes() {
 
           <button
             type="submit"
-            className={`rounded-xl px-6 py-3 font-semibold text-white transition ${
+            className={`inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-semibold text-white transition ${
               saved
                 ? "bg-green-600"
                 : "bg-violet-600 hover:bg-violet-700"
             }`}
           >
-            {saved
-              ? "✓ Saved!"
-              : editingId
-              ? "Update Code"
-              : "Create Code"}
+            {saved && <Check className="h-5 w-5" aria-hidden="true" />}
+            {saved ? "Saved" : editingId ? "Update Code" : "Create Code"}
           </button>
 
         </div>
@@ -417,7 +417,9 @@ export default function PromoCodes() {
         {/* Promo Cards */}
 {promos.length === 0 ? (
   <div className="bg-white rounded-2xl shadow-sm border border-gray-200 py-16 text-center">
-    <div className="text-6xl mb-4">🏷️</div>
+    <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-violet-100">
+      <BadgePercent className="h-10 w-10 text-violet-600" aria-hidden="true" />
+    </div>
 
     <h3 className="text-2xl font-bold text-gray-800">
       No promo codes yet
@@ -429,9 +431,10 @@ export default function PromoCodes() {
 
     <button
       onClick={openAdd}
-      className="bg-violet-600 hover:bg-violet-700 text-white px-6 py-3 rounded-xl font-medium transition"
+      className="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-700 text-white px-6 py-3 rounded-xl font-medium transition"
     >
-      + Create Promo Code
+      <Plus className="h-5 w-5" aria-hidden="true" />
+      Create Promo Code
     </button>
   </div>
 ) : (
@@ -471,15 +474,17 @@ export default function PromoCodes() {
               <button
                 onClick={() => openEdit(promo)}
                 className="w-9 h-9 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 flex items-center justify-center"
+                aria-label={`Edit ${promo.code}`}
               >
-                ✏️
+                <Pencil className="h-4 w-4" aria-hidden="true" />
               </button>
 
               <button
                 onClick={() => setDeleteConfirm(promo.id)}
                 className="w-9 h-9 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 flex items-center justify-center"
+                aria-label={`Delete ${promo.code}`}
               >
-                🗑️
+                <Trash2 className="h-4 w-4" aria-hidden="true" />
               </button>
             </div>
           </div>
