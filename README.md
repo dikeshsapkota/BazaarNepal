@@ -187,27 +187,42 @@ The project was built to strengthen my full-stack development skills while focus
 
 ---
 
-# 📁 Project Structure
-
 ```text
 BazaarNepal
 │
-├── public/
-├── src/
-│   ├── api/
-│   ├── assets/
-│   ├── components/
-│   ├── context/
-│   ├── pages/
-│   │   ├── customer/
-│   │   └── seller/
-│   ├── utils/
-│   ├── App.jsx
-│   └── main.jsx
+├── Backend
+│   ├── src
+│   │   ├── config
+│   │   ├── controllers
+│   │   ├── middleware
+│   │   ├── models
+│   │   ├── routes
+│   │   ├── app.js
+│   │   └── server.js
+│   ├── .env
+│   └── package.json
 │
-├── package.json
-├── vite.config.js
-└── README.md
+├── Frontend
+│   ├── public
+│   ├── src
+│   │   ├── api
+│   │   ├── assets
+│   │   ├── components
+│   │   ├── context
+│   │   ├── hooks
+│   │   ├── pages
+│   │   │   ├── customer
+│   │   │   ├── seller
+│   │   │   └── auth
+│   │   ├── styles
+│   │   ├── utils
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   ├── vite.config.js
+│   └── package.json
+│
+├── README.md
+└── .gitignore
 ```
 
 ---
