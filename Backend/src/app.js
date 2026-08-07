@@ -17,6 +17,7 @@ const authRoutes = require("./routes/authRoutes");
 const productRoutes = require("./routes/productRoutes");
 const cartRoutes = require("./routes/cartRoutes");
 const orderRoutes = require("./routes/orderRoutes");
+const promoRoutes = require("./routes/promoRoutes");
 // Middleware
 const { protect } = require("./middleware/authMiddleware");
 
@@ -25,6 +26,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/promos", promoRoutes);
 // Home Route
 app.get("/", (req, res) => {
   res.json({

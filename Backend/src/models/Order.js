@@ -17,6 +17,7 @@ const orderItemSchema = new mongoose.Schema(
     quantity: {
       type: Number,
       required: true,
+      min: 1,
     },
 
     price: {
@@ -45,14 +46,25 @@ const orderSchema = new mongoose.Schema(
       postalCode: String,
     },
 
-    subtotal: Number,
+    subtotal: {
+      type: Number,
+      required: true,
+    },
 
     discount: {
       type: Number,
       default: 0,
     },
 
-    total: Number,
+    promoCode: {
+      type: String,
+      default: null,
+    },
+
+    total: {
+      type: Number,
+      required: true,
+    },
 
     paymentMethod: {
       type: String,
