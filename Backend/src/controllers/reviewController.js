@@ -146,3 +146,75 @@ exports.checkReviewEligibility = async (req, res) => {
     });
   }
 };
+//update a review
+exports.updateReview = async (req, res) => {
+  try {
+    const { rating, comment } = req.body;
+    const numericRating = Number(rating);
+    const customerId = req.user.id || req.user._id;
+
+    if (!comment?.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "Review comment is required",
+      });
+    }
+
+    if (
+      Number.isNaN(numericRating) ||
+      numericRating < 1 ||
+      numericRating > 5
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Rating must be between 1 and 5",
+      });
+    }
+
+    const product = await Product.findById(req.params.productId);
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    const existingReview = product.reviewsList.find(
+      (review) =>
+        review.user.toString() === customerId.toString()
+    );
+
+    if (!existingReview) {
+      return res.status(404).json({
+        success: false,
+        message: "Review not found",
+      });
+    }
+
+    existingReview.rating = numericRating;
+    existingReview.comment = comment.trim();
+    existingReview.name =
+      req.user.name || existingReview.name;
+
+    product.rating =
+      product.reviewsList.reduce(
+        (sum, review) => sum + review.rating,
+        0
+      ) / product.reviewsList.length;
+
+    await product.save();
+
+    res.json({
+      success: true,
+      message: "Review updated successfully",
+      review: existingReview,
+      product,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

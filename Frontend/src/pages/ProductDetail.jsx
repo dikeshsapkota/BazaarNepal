@@ -3,7 +3,7 @@ import { useStore } from "../context/StoreContext";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { addProductReview, checkReviewEligibility, getProductReviews } from "../api/reviewApi";
+import { addProductReview, updateProductReview, checkReviewEligibility, getProductReviews } from "../api/reviewApi";
 import { ArrowLeft, Check, Loader2, MessageSquare, Minus, Plus, ShoppingCart, Star, XCircle, Zap } from "lucide-react";
 
 const getReviewerName = (review) =>
@@ -49,14 +49,45 @@ export default function ProductDetail() {
   const [reviewError, setReviewError] = useState("");
   const [reviewSuccess, setReviewSuccess] = useState("");
   const [canReview, setCanReview] = useState(false);
+  const [reviewEligibilityReason, setReviewEligibilityReason] = useState(null);
   const [eligibilityLoading, setEligibilityLoading] = useState(false);
   const [eligibilityError, setEligibilityError] = useState("");
+  const [editingReview, setEditingReview] = useState(false);
+  const [existingReview, setExistingReview] = useState(null);
   const [reviewForm, setReviewForm] = useState({
     rating: 5,
     comment: "",
   });
 
   const product = products.find((p) => p._id === id);
+  const currentUserId = currentUser?._id || currentUser?.id;
+
+  const currentUserReview = useMemo(() => {
+    if (!currentUserId) return null;
+
+    return reviews.find((review) => {
+      const reviewUserId =
+        review?.user?._id ||
+        review?.user ||
+        review?.customer?._id ||
+        review?.customer;
+
+      return reviewUserId && String(reviewUserId) === String(currentUserId);
+    }) || null;
+  }, [currentUserId, reviews]);
+
+  const startEditingReview = (review = currentUserReview || existingReview) => {
+    if (!review) return;
+
+    setExistingReview(review);
+    setReviewForm({
+      rating: Number(review?.rating) || 5,
+      comment: review?.comment || "",
+    });
+    setEditingReview(true);
+    setReviewError("");
+    setReviewSuccess("");
+  };
 
   const fetchReviews = useCallback(async () => {
     setReviewsLoading(true);
@@ -82,34 +113,42 @@ export default function ProductDetail() {
     }
   }, [fetchReviews, id]);
 
-  useEffect(() => {
+  const fetchReviewEligibility = useCallback(async () => {
     if (currentUser?.role !== "customer") {
       setCanReview(false);
+      setReviewEligibilityReason(null);
+      setExistingReview(null);
       setEligibilityError("");
       return;
     }
 
-    const fetchEligibility = async () => {
-      setEligibilityLoading(true);
-      setEligibilityError("");
+    setEligibilityLoading(true);
+    setEligibilityError("");
 
-      try {
-        const token = localStorage.getItem("token");
-        const { data } = await checkReviewEligibility(id, token);
-        setCanReview(Boolean(data.canReview));
-      } catch (error) {
-        setCanReview(false);
-        setEligibilityError(
-          error.response?.data?.message ||
-          "Unable to check review eligibility."
-        );
-      } finally {
-        setEligibilityLoading(false);
-      }
-    };
+    try {
+      const token = localStorage.getItem("token");
+      const { data } = await checkReviewEligibility(id, token);
 
-    fetchEligibility();
+      setCanReview(Boolean(data.canReview));
+      setReviewEligibilityReason(data.reason || null);
+      setExistingReview(data.review || null);
+    } catch (error) {
+      setCanReview(false);
+      setReviewEligibilityReason(null);
+      setExistingReview(null);
+
+      setEligibilityError(
+        error.response?.data?.message ||
+        "Unable to check review eligibility."
+      );
+    } finally {
+      setEligibilityLoading(false);
+    }
   }, [currentUser?.role, id]);
+
+  useEffect(() => {
+    fetchReviewEligibility();
+  }, [fetchReviewEligibility]);
 
   const averageRating = useMemo(() => {
     if (reviews.length === 0) return 0;
@@ -167,7 +206,7 @@ export default function ProductDetail() {
       return;
     }
 
-    if (!canReview) {
+    if (!canReview && !editingReview) {
       setReviewError("You can only review products from delivered orders.");
       return;
     }
@@ -188,17 +227,29 @@ export default function ProductDetail() {
     setReviewSubmitting(true);
 
     try {
-      await addProductReview(id, {
+      const token = localStorage.getItem("token");
+      const reviewPayload = {
         rating,
         comment,
-      });
+      };
+
+      if (editingReview) {
+        await updateProductReview(id, reviewPayload, token);
+      } else {
+        await addProductReview(id, reviewPayload);
+      }
 
       setReviewForm({
         rating: 5,
         comment: "",
       });
-      setReviewSuccess("Your review has been submitted.");
+      setReviewSuccess(
+        editingReview
+          ? "Your review has been updated."
+          : "Your review has been submitted."
+      );
       await fetchReviews();
+      setEditingReview(false);
     } catch (error) {
       setReviewError(
         error.response?.data?.message ||
@@ -513,28 +564,76 @@ export default function ProductDetail() {
 
           <aside className="h-fit rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
             <h2 className="text-2xl font-bold text-gray-900">
-              Write a Review
+              {editingReview ? "Edit Your Review" : "Write a Review"}
             </h2>
 
             {!currentUser ? (
               <p className="mt-4 rounded-xl border border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-800">
                 Please login as a customer to write a review.
               </p>
-          ) : currentUser.role !== "customer" ? (
-            <p className="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-600">
-              Reviews can only be submitted by customers.
-            </p>
-          ) : eligibilityLoading ? (
-            <div className="mt-4 flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-600">
-              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-              Checking review eligibility...
-            </div>
-          ) : !canReview ? (
-            <div className="mt-4 rounded-xl border border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-800">
-              {eligibilityError || "You can only review products from delivered orders."}
-            </div>
-          ) : (
-            <form onSubmit={handleReviewSubmit} className="mt-5 space-y-5">
+            ) : currentUser.role !== "customer" ? (
+              <p className="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-600">
+                Reviews can only be submitted by customers.
+              </p>
+            ) : eligibilityLoading ? (
+              <div className="mt-4 flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-600">
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                Checking review eligibility...
+              </div>
+            ) : !canReview && !editingReview ? (
+              <div className="mt-4">
+                {reviewEligibilityReason === "already_reviewed" ? (
+                  <div className="rounded-xl border border-green-200 bg-green-50 p-4">
+                    <p className="font-medium text-green-800">
+                      ✓ You have already reviewed this product.
+                    </p>
+
+                    <p className="mt-1 text-sm text-green-700">
+                      You can view your review in the customer reviews section.
+                    </p>
+
+                    {(currentUserReview || existingReview) && (
+                      <button
+                        type="button"
+                        onClick={() => startEditingReview()}
+                        className="mt-4 rounded-xl bg-green-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-800"
+                      >
+                        Edit Review
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-4">
+                    <p className="font-medium text-yellow-800">
+                      You can only review products from delivered orders.
+                    </p>
+
+                    <p className="mt-1 text-sm text-yellow-700">
+                      Once your order is delivered, you can share your experience here.
+                    </p>
+                  </div>
+                )}
+              </div>
+            ) : currentUserReview && !editingReview ? (
+              <div className="mt-4 rounded-xl border border-green-200 bg-green-50 p-4">
+                <p className="font-medium text-green-800">
+                  ✓ You have already reviewed this product.
+                </p>
+
+                <p className="mt-1 text-sm text-green-700">
+                  You can update your rating and comment here.
+                </p>
+
+                <button
+                  type="button"
+                  onClick={() => startEditingReview(currentUserReview)}
+                  className="mt-4 rounded-xl bg-green-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-800"
+                >
+                  Edit Review
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleReviewSubmit} className="mt-5 space-y-5">
                 <div>
                   <label className="mb-2 block text-sm font-medium text-gray-700">
                     Rating
@@ -598,7 +697,25 @@ export default function ProductDetail() {
                     {reviewSuccess}
                   </div>
                 )}
+                {editingReview && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingReview(false);
 
+                      setReviewForm({
+                        rating: 5,
+                        comment: "",
+                      });
+
+                      setReviewError("");
+                      setReviewSuccess("");
+                    }}
+                    className="flex w-full items-center justify-center rounded-xl border border-gray-300 py-3 font-semibold text-gray-700 transition hover:bg-gray-50"
+                  >
+                    Cancel Edit
+                  </button>
+                )}
                 <button
                   type="submit"
                   disabled={reviewSubmitting}
@@ -606,6 +723,7 @@ export default function ProductDetail() {
                 >
                   {reviewSubmitting ? "Submitting..." : "Submit Review"}
                 </button>
+
               </form>
             )}
           </aside>

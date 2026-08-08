@@ -23,3 +23,15 @@ export const checkReviewEligibility = (productId, token) => {
     }
   );
 };
+// Customer only — update review
+export const updateProductReview = (productId, reviewData, token) => {
+  return axios.put(
+    `${API_URL}/reviews/${productId}`,
+    reviewData,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+};

@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const updateReview = require("../controllers/reviewController").updateReview;
 
 const {
   addReview,
@@ -32,6 +33,13 @@ router.post(
   protect,
   authorize("customer"),
   addReview
+);
+//update a review 
+router.put(
+  "/:productId",
+  protect,
+  authorize("customer"),
+  updateReview
 );
 
 module.exports = router;
