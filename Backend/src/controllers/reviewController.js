@@ -17,11 +17,11 @@ exports.addReview = async (req, res) => {
     }
 
     if (!rating || !comment?.trim()) {
-  return res.status(400).json({
-    success: false,
-    message: "Rating and comment are required",
-  });
-}
+      return res.status(400).json({
+        success: false,
+        message: "Rating and comment are required",
+      });
+    }
 
     if (
       Number.isNaN(numericRating) ||
@@ -33,43 +33,49 @@ exports.addReview = async (req, res) => {
         message: "Rating must be between 1 and 5",
       });
     }
-const customerId = req.user.id || req.user._id;
 
-const purchasedOrder = await Order.findOne({
-  customer: customerId,
-  "items.product": req.params.productId,
-  status: "delivered",
-});
+    const customerId = req.user.id || req.user._id;
 
-if (!purchasedOrder) {
-  return res.status(403).json({
-    success: false,
-    message: "You can only review products you have purchased.",
-  });
-}
+    // Check if customer purchased and received this product
+    const purchasedOrder = await Order.findOne({
+      customer: customerId,
+      "items.product": req.params.productId,
+      status: "delivered",
+    });
 
-const existingReview = product.reviewsList.find(
-  (review) => review.user.toString() === req.user.id
-);
+    if (!purchasedOrder) {
+      return res.status(403).json({
+        success: false,
+        message: "You can only review products you have purchased.",
+      });
+    }
 
-if (existingReview) {
-  existingReview.rating = numericRating;
-  existingReview.comment = comment.trim();
-  existingReview.name =
-    req.user.name || existingReview.name;
-  existingReview.verifiedPurchase = true;
-} else {
-  product.reviewsList.push({
-  user: req.user.id,
-  name: req.user.name || "Customer",
-  rating: numericRating,
-  comment: comment.trim(),
-  verifiedPurchase: true,
-});
-}
+    // Check if customer already reviewed this product
+    const existingReview = product.reviewsList.find(
+      (review) =>
+        review.user.toString() === customerId.toString()
+    );
 
+    if (existingReview) {
+      return res.status(409).json({
+        success: false,
+        message: "You have already reviewed this product.",
+      });
+    }
+
+    // Add new review
+    product.reviewsList.push({
+      user: customerId,
+      name: req.user.name || "Customer",
+      rating: numericRating,
+      comment: comment.trim(),
+      verifiedPurchase: true,
+    });
+
+    // Recalculate review count
     product.reviews = product.reviewsList.length;
 
+    // Recalculate average rating
     product.rating =
       product.reviewsList.reduce(
         (sum, review) => sum + review.rating,
@@ -78,18 +84,15 @@ if (existingReview) {
 
     await product.save();
 
-    res.json({
+    res.status(201).json({
       success: true,
-      message: existingReview
-        ? "Review updated successfully"
-        : "Review added successfully",
+      message: "Review added successfully",
       product,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
       message: error.message,
-      
     });
   }
 };
