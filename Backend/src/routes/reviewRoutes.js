@@ -1,11 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const updateReview = require("../controllers/reviewController").updateReview;
 
 const {
   addReview,
-  checkReviewEligibility,
   getProductReviews,
+  checkReviewEligibility,
+  updateReview,
+  deleteReview,
 } = require("../controllers/reviewController");
 
 const {
@@ -19,7 +20,7 @@ router.get(
   getProductReviews
 );
 
-// Customer: check whether a delivered order exists for this product
+// Customer: check whether a delivered order exists
 router.get(
   "/:productId/eligibility",
   protect,
@@ -27,19 +28,28 @@ router.get(
   checkReviewEligibility
 );
 
-// Customer: add or update review
+// Customer: add review
 router.post(
   "/:productId",
   protect,
   authorize("customer"),
   addReview
 );
-//update a review 
+
+// Customer: update review
 router.put(
   "/:productId",
   protect,
   authorize("customer"),
   updateReview
+);
+
+// Customer: delete review
+router.delete(
+  "/:productId",
+  protect,
+  authorize("customer"),
+  deleteReview
 );
 
 module.exports = router;

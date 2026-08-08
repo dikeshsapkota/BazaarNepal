@@ -128,6 +128,30 @@ exports.getProductReviews = async (req, res) => {
 exports.checkReviewEligibility = async (req, res) => {
   try {
     const customerId = req.user.id || req.user._id;
+    const product = await Product.findById(
+      req.params.productId
+    ).select("reviewsList");
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    const existingReview = product.reviewsList.find(
+      (review) =>
+        review.user.toString() === customerId.toString()
+    );
+
+    if (existingReview) {
+      return res.json({
+        success: true,
+        canReview: false,
+        reason: "already_reviewed",
+        review: existingReview,
+      });
+    }
 
     const purchasedOrder = await Order.findOne({
       customer: customerId,
@@ -138,6 +162,8 @@ exports.checkReviewEligibility = async (req, res) => {
     res.json({
       success: true,
       canReview: Boolean(purchasedOrder),
+      reason: purchasedOrder ? null : "not_delivered",
+      review: null,
     });
   } catch (error) {
     res.status(500).json({
@@ -210,6 +236,59 @@ exports.updateReview = async (req, res) => {
       message: "Review updated successfully",
       review: existingReview,
       product,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+//delete a review
+exports.deleteReview = async (req, res) => {
+  try {
+    const customerId = req.user.id || req.user._id;
+
+    const product = await Product.findById(req.params.productId);
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    const reviewIndex = product.reviewsList.findIndex(
+      (review) =>
+        review.user.toString() === customerId.toString()
+    );
+
+    if (reviewIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        message: "Review not found",
+      });
+    }
+
+    product.reviewsList.splice(reviewIndex, 1);
+
+    product.reviews = product.reviewsList.length;
+
+    if (product.reviews > 0) {
+      product.rating =
+        product.reviewsList.reduce(
+          (sum, review) => sum + review.rating,
+          0
+        ) / product.reviews;
+    } else {
+      product.rating = 0;
+    }
+
+    await product.save();
+
+    res.json({
+      success: true,
+      message: "Review deleted successfully",
     });
   } catch (error) {
     res.status(500).json({

@@ -35,3 +35,14 @@ export const updateProductReview = (productId, reviewData, token) => {
     }
   );
 };
+//delete review
+export const deleteProductReview = (productId, token) => {
+  return axios.delete(
+    `${API_URL}/reviews/${productId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+};

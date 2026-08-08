@@ -3,7 +3,7 @@ import { useStore } from "../context/StoreContext";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { addProductReview, updateProductReview, checkReviewEligibility, getProductReviews } from "../api/reviewApi";
+import { addProductReview, updateProductReview, deleteProductReview, checkReviewEligibility, getProductReviews } from "../api/reviewApi";
 import { ArrowLeft, Check, Loader2, MessageSquare, Minus, Plus, ShoppingCart, Star, XCircle, Zap } from "lucide-react";
 
 const getReviewerName = (review) =>
@@ -46,10 +46,11 @@ export default function ProductDetail() {
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [reviewsLoadError, setReviewsLoadError] = useState("");
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [reviewDeleting, setReviewDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [reviewError, setReviewError] = useState("");
   const [reviewSuccess, setReviewSuccess] = useState("");
   const [canReview, setCanReview] = useState(false);
-  const [reviewEligibilityReason, setReviewEligibilityReason] = useState(null);
   const [eligibilityLoading, setEligibilityLoading] = useState(false);
   const [eligibilityError, setEligibilityError] = useState("");
   const [editingReview, setEditingReview] = useState(false);
@@ -75,8 +76,9 @@ export default function ProductDetail() {
       return reviewUserId && String(reviewUserId) === String(currentUserId);
     }) || null;
   }, [currentUserId, reviews]);
+  const savedReview = currentUserReview || existingReview;
 
-  const startEditingReview = (review = currentUserReview || existingReview) => {
+  const startEditingReview = (review = savedReview) => {
     if (!review) return;
 
     setExistingReview(review);
@@ -85,10 +87,55 @@ export default function ProductDetail() {
       comment: review?.comment || "",
     });
     setEditingReview(true);
+    setShowDeleteConfirm(false);
     setReviewError("");
     setReviewSuccess("");
   };
 
+  const requestDeleteReview = () => {
+    setShowDeleteConfirm(true);
+    setReviewError("");
+    setReviewSuccess("");
+  };
+
+  const handleDeleteReview = async () => {
+    setReviewDeleting(true);
+    setReviewError("");
+    setReviewSuccess("");
+
+    try {
+      const token = localStorage.getItem("token");
+
+      await deleteProductReview(id, token);
+
+      setExistingReview(null);
+      setEditingReview(false);
+      setShowDeleteConfirm(false);
+
+      setReviewForm({
+        rating: 5,
+        comment: "",
+      });
+
+      setReviewSuccess("Your review has been deleted.");
+
+      await Promise.all([
+        fetchReviews(),
+        fetchReviewEligibility(),
+      ]);
+    } catch (error) {
+  console.error("DELETE REVIEW ERROR:", error);
+  console.error("RESPONSE:", error.response?.data);
+  console.error("STATUS:", error.response?.status);
+
+  setReviewError(
+    error.response?.data?.message ||
+      "Unable to delete your review."
+  );
+} finally {
+      setReviewDeleting(false);
+    }
+  };
   const fetchReviews = useCallback(async () => {
     setReviewsLoading(true);
     setReviewsLoadError("");
@@ -116,7 +163,6 @@ export default function ProductDetail() {
   const fetchReviewEligibility = useCallback(async () => {
     if (currentUser?.role !== "customer") {
       setCanReview(false);
-      setReviewEligibilityReason(null);
       setExistingReview(null);
       setEligibilityError("");
       return;
@@ -130,11 +176,9 @@ export default function ProductDetail() {
       const { data } = await checkReviewEligibility(id, token);
 
       setCanReview(Boolean(data.canReview));
-      setReviewEligibilityReason(data.reason || null);
       setExistingReview(data.review || null);
     } catch (error) {
       setCanReview(false);
-      setReviewEligibilityReason(null);
       setExistingReview(null);
 
       setEligibilityError(
@@ -236,7 +280,7 @@ export default function ProductDetail() {
       if (editingReview) {
         await updateProductReview(id, reviewPayload, token);
       } else {
-        await addProductReview(id, reviewPayload);
+        await addProductReview(id, reviewPayload, token);
       }
 
       setReviewForm({
@@ -248,8 +292,12 @@ export default function ProductDetail() {
           ? "Your review has been updated."
           : "Your review has been submitted."
       );
-      await fetchReviews();
       setEditingReview(false);
+
+      await Promise.all([
+        fetchReviews(),
+        fetchReviewEligibility(),
+      ]);
     } catch (error) {
       setReviewError(
         error.response?.data?.message ||
@@ -580,57 +628,83 @@ export default function ProductDetail() {
                 <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                 Checking review eligibility...
               </div>
-            ) : !canReview && !editingReview ? (
-              <div className="mt-4">
-                {reviewEligibilityReason === "already_reviewed" ? (
-                  <div className="rounded-xl border border-green-200 bg-green-50 p-4">
-                    <p className="font-medium text-green-800">
-                      ✓ You have already reviewed this product.
-                    </p>
-
-                    <p className="mt-1 text-sm text-green-700">
-                      You can view your review in the customer reviews section.
-                    </p>
-
-                    {(currentUserReview || existingReview) && (
-                      <button
-                        type="button"
-                        onClick={() => startEditingReview()}
-                        className="mt-4 rounded-xl bg-green-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-800"
-                      >
-                        Edit Review
-                      </button>
-                    )}
-                  </div>
-                ) : (
-                  <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-4">
-                    <p className="font-medium text-yellow-800">
-                      You can only review products from delivered orders.
-                    </p>
-
-                    <p className="mt-1 text-sm text-yellow-700">
-                      Once your order is delivered, you can share your experience here.
-                    </p>
-                  </div>
-                )}
-              </div>
-            ) : currentUserReview && !editingReview ? (
+            ) : savedReview && !editingReview ? (
               <div className="mt-4 rounded-xl border border-green-200 bg-green-50 p-4">
                 <p className="font-medium text-green-800">
                   ✓ You have already reviewed this product.
                 </p>
 
                 <p className="mt-1 text-sm text-green-700">
-                  You can update your rating and comment here.
+                  You can update or delete your review here.
                 </p>
 
-                <button
-                  type="button"
-                  onClick={() => startEditingReview(currentUserReview)}
-                  className="mt-4 rounded-xl bg-green-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-800"
-                >
-                  Edit Review
-                </button>
+                <div className="mt-4 space-y-2">
+                  <button
+                    type="button"
+                    onClick={() => startEditingReview(savedReview)}
+                    className="w-full rounded-xl bg-green-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-800"
+                  >
+                    Edit Review
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={requestDeleteReview}
+                    disabled={reviewDeleting || showDeleteConfirm}
+                    className="w-full rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    Delete Review
+                  </button>
+                </div>
+
+                {showDeleteConfirm && (
+                  <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4">
+                    <p className="font-medium text-red-700">
+                      Delete your review?
+                    </p>
+
+                    <p className="mt-1 text-sm text-red-600">
+                      This will remove your rating and comment from this product.
+                    </p>
+
+                    <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                      <button
+                        type="button"
+                        onClick={() => setShowDeleteConfirm(false)}
+                        disabled={reviewDeleting}
+                        className="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        Cancel
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={handleDeleteReview}
+                        disabled={reviewDeleting}
+                        className="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-gray-400"
+                      >
+                        {reviewDeleting ? "Deleting..." : "Confirm Delete"}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {reviewError && (
+                  <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-600">
+                    {reviewError}
+                  </div>
+                )}
+              </div>
+            ) : !canReview && !editingReview ? (
+              <div className="mt-4 rounded-xl border border-yellow-200 bg-yellow-50 p-4">
+                <p className="font-medium text-yellow-800">
+                  You can only review products from delivered orders.
+                </p>
+
+                <p className="mt-1 text-sm text-yellow-700">
+                  {eligibilityError ||
+                    "Once your order is delivered, you can share your experience here."}
+                </p>
               </div>
             ) : (
               <form onSubmit={handleReviewSubmit} className="mt-5 space-y-5">
@@ -721,7 +795,13 @@ export default function ProductDetail() {
                   disabled={reviewSubmitting}
                   className="flex w-full items-center justify-center rounded-xl bg-violet-600 py-3 font-semibold text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:bg-gray-400"
                 >
-                  {reviewSubmitting ? "Submitting..." : "Submit Review"}
+                  {reviewSubmitting
+                    ? editingReview
+                      ? "Updating..."
+                      : "Submitting..."
+                    : editingReview
+                      ? "Update Review"
+                      : "Submit Review"}
                 </button>
 
               </form>
