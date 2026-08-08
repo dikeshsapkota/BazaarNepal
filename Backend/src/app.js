@@ -19,6 +19,7 @@ const cartRoutes = require("./routes/cartRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const promoRoutes = require("./routes/promoRoutes");
 const userRoutes = require("./routes/userRoutes");
+const reviewRoutes = require("./routes/reviewRoutes");
 
 // Middleware
 const { protect } = require("./middleware/authMiddleware");
@@ -30,6 +31,7 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/promos", promoRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/reviews", reviewRoutes);
 // Home Route
 app.get("/", (req, res) => {
   res.json({

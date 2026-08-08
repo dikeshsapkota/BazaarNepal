@@ -20,6 +20,7 @@ export default function Navbar() {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const isCustomer = currentUser?.role === "customer";
 
   const handleLogout = () => {
     logout();
@@ -75,7 +76,7 @@ export default function Navbar() {
                 Promo Codes
               </Link>
             </>
-          ) : (
+          ) : isCustomer ? (
             <>
               <Link to="/cart" className="relative text-sm text-gray-600 hover:text-violet-600 transition-colors flex items-center gap-1">
                 <ShoppingCart className="h-4 w-4" aria-hidden="true" />
@@ -92,7 +93,7 @@ export default function Navbar() {
                 </Link>
               )}
             </>
-          )}
+          ) : null}
         </div>
 
         {/* Right side */}
@@ -183,7 +184,7 @@ export default function Navbar() {
               <Link to="/seller/products" onClick={closeMenu} className="py-2.5 text-sm text-gray-700 hover:text-violet-600 transition-colors">Products</Link>
               <Link to="/seller/promos" onClick={closeMenu} className="py-2.5 text-sm text-gray-700 hover:text-violet-600 transition-colors">Promo Codes</Link>
             </>
-          ) : (
+          ) : isCustomer ? (
             <>
               <Link to="/cart" onClick={closeMenu} className="py-2.5 text-sm text-gray-700 hover:text-violet-600 transition-colors">
                 <span className="inline-flex items-center gap-2">
@@ -206,7 +207,7 @@ export default function Navbar() {
               )}
             </>
 
-          )}
+          ) : null}
 
           {!currentUser && (
             <div className="flex gap-2 pt-2 border-t border-gray-100 mt-1">

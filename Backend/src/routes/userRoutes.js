@@ -4,6 +4,7 @@ const router = express.Router();
 const {
   getMyProfile,
   updateMyProfile,
+  changePassword,
 } = require("../controllers/userController");
 
 const {
@@ -23,5 +24,10 @@ router.put(
   protect,
   updateMyProfile
 );
-
+//change password in user's profile
+router.put(
+  "/change-password",
+  protect,
+  changePassword
+);
 module.exports = router;

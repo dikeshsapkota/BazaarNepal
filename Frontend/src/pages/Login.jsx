@@ -19,7 +19,7 @@ export default function Login() {
  const demoAccounts = {
   customer: {
     email: "dikesh@test.com",
-    password: "123456",
+    password: "1234567",
   },
   seller: {
     email: "seller@example.com",
