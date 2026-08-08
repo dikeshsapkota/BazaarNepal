@@ -6,10 +6,6 @@ import {
   updateProduct as updateProductApi,
   deleteProduct as deleteProductApi,
 } from "../api/productApi";
-import {
-  SEED_PROMO_CODES,
-  SEED_ORDERS,
-} from "../data/seedData";
 const StoreContext = createContext(null);
 
 function initData(key, seed) {
@@ -38,8 +34,8 @@ export function StoreProvider({ children }) {
 
     loadProducts();
 
-    setPromoCodes(initData("ecom_promos", SEED_PROMO_CODES));
-    setOrders(initData("ecom_orders", SEED_ORDERS));
+    setPromoCodes(initData("ecom_promos", []));
+    setOrders(initData("ecom_orders", []));
   }, []);
 
   // --- Products ---

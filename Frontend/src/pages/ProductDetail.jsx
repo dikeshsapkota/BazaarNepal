@@ -124,10 +124,6 @@ export default function ProductDetail() {
         fetchReviewEligibility(),
       ]);
     } catch (error) {
-  console.error("DELETE REVIEW ERROR:", error);
-  console.error("RESPONSE:", error.response?.data);
-  console.error("STATUS:", error.response?.status);
-
   setReviewError(
     error.response?.data?.message ||
       "Unable to delete your review."
