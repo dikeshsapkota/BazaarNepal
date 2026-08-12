@@ -23,6 +23,10 @@ const reviewRoutes = require("./routes/reviewRoutes");
 
 // Middleware
 const { protect } = require("./middleware/authMiddleware");
+const { apiLimiter } = require("./middleware/rateLimitMiddleware");
+
+// General rate limit for all API endpoints
+app.use("/api", apiLimiter);
 
 // API Routes
 app.use("/api/auth", authRoutes);
@@ -32,6 +36,7 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/promos", promoRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/reviews", reviewRoutes);
+
 // Home Route
 app.get("/", (req, res) => {
   res.json({
